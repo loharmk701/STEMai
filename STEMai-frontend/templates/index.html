@@ -1147,6 +1147,126 @@
       50%      { box-shadow: 0 0 0 5px rgba(0,229,176,0); }
     }
 
+    /* ── USER PROFILE SECTION (sidebar bottom) ── */
+    .sidebar-user-section {
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1.5px solid var(--border-light);
+      flex-shrink: 0;
+      display: none; /* shown by JS when authenticated */
+    }
+    .sidebar-user-section.visible {
+      display: block;
+    }
+    .user-profile-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, rgba(46,59,109,.06), rgba(255,107,53,.04));
+      border: 1.5px solid var(--border-light);
+      margin-bottom: 8px;
+      transition: all var(--tf);
+    }
+    .user-profile-card:hover {
+      border-color: rgba(46,59,109,.15);
+      box-shadow: var(--shadow-sm);
+    }
+    .user-avatar-circle {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--stem-navy), var(--stem-navy-light));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: .82rem;
+      flex-shrink: 0;
+      box-shadow: 0 3px 12px rgba(46,59,109,.25);
+      text-transform: uppercase;
+    }
+    .user-profile-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .user-profile-email {
+      font-size: .74rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .user-profile-role {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .6rem;
+      font-weight: 800;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      width: fit-content;
+    }
+    .user-profile-role.role-teacher {
+      background: linear-gradient(135deg, rgba(255,107,53,.12), rgba(255,143,94,.08));
+      color: var(--stem-orange);
+      border: 1px solid rgba(255,107,53,.2);
+    }
+    .user-profile-role.role-student {
+      background: linear-gradient(135deg, rgba(59,130,246,.1), rgba(59,130,246,.06));
+      color: var(--accent-blue);
+      border: 1px solid rgba(59,130,246,.2);
+    }
+    .user-profile-role i {
+      font-size: .55rem;
+    }
+    .sidebar-logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid rgba(239,68,68,.2);
+      background: rgba(239,68,68,.05);
+      color: #dc2626;
+      font-family: var(--font-body);
+      font-size: .8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--tf);
+    }
+    .sidebar-logout-btn i {
+      font-size: .82rem;
+    }
+    .sidebar-logout-btn:hover {
+      background: rgba(239,68,68,.12);
+      border-color: rgba(239,68,68,.4);
+      box-shadow: 0 3px 14px rgba(239,68,68,.15);
+      transform: translateY(-1px);
+    }
+    .sidebar-logout-btn:active {
+      transform: translateY(0);
+    }
+
+    @media (prefers-color-scheme:dark) {
+      .user-profile-card {
+        background: linear-gradient(135deg, rgba(46,59,109,.15), rgba(255,107,53,.06));
+        border-color: rgba(255,255,255,.06);
+      }
+      .sidebar-logout-btn {
+        background: rgba(239,68,68,.08);
+        border-color: rgba(239,68,68,.25);
+      }
+    }
+
     /* Data-device overrides from JS */
     [data-device="tv"] .sidebar{width:300px;}
     [data-device="tv"] .send-button{padding:18px 36px;font-size:1.1rem;}
@@ -1360,6 +1480,24 @@
           <span>AI Ready</span>
         </div>
       </nav>
+
+      <!-- User Profile & Logout -->
+      <div class="sidebar-user-section" id="sidebarUserSection">
+        <div class="user-profile-card">
+          <div class="user-avatar-circle" id="userAvatarInitial">?</div>
+          <div class="user-profile-info">
+            <span class="user-profile-email" id="userProfileEmail">—</span>
+            <span class="user-profile-role" id="userProfileRole">
+              <i class="fa-solid fa-circle-user"></i>
+              <span>—</span>
+            </span>
+          </div>
+        </div>
+        <button class="sidebar-logout-btn" id="logoutBtn" type="button">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
     </aside>
 
     <!-- MAIN CONTENT -->
