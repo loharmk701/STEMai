@@ -1,1631 +1,2332 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>STEMbotix Programming Lab</title>
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='stembot_coder.png') }}"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-<style>
-/* ════════════════════════════════════════════════════
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STEMbotix Programming Lab</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='stembot_coder.png') }}" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ════════════════════════════════════════════════════
    DESIGN: Dark industrial-neon cyberpunk lab aesthetic
    Palette: Deep charcoal + electric teal + plasma orange
    ════════════════════════════════════════════════════ */
-:root {
-  --bg-base:      #0a0c10;
-  --bg-surface:   #111318;
-  --bg-panel:     #161920;
-  --bg-input:     #1c1f27;
-  --bg-hover:     #1f232d;
-  --border:       #252932;
-  --border-glow:  #00e5b0;
-  --text:         #e2e8f0;
-  --text-muted:   #6b7280;
-  --text-dim:     #374151;
-  --accent:       #00e5b0;
-  --accent2:      #ff6b35;
-  --accent3:      #7c3aed;
-  --level1:       #22c55e;
-  --level2:       #3b82f6;
-  --level3:       #f59e0b;
-  --level4:       #a855f7;
-  --error:        #ef4444;
-  --success:      #10b981;
-  --font-mono:    'JetBrains Mono', monospace;
-  --font-ui:      'Syne', sans-serif;
-  --font-code:    'Space Mono', monospace;
-  --radius:       6px;
-  --glow:         0 0 20px rgba(0,229,176,0.15);
-  --glow-strong:  0 0 30px rgba(0,229,176,0.3);
-}
+    :root {
+      --bg-base: #0a0c10;
+      --bg-surface: #111318;
+      --bg-panel: #161920;
+      --bg-input: #1c1f27;
+      --bg-hover: #1f232d;
+      --border: #252932;
+      --border-glow: #00e5b0;
+      --text: #e2e8f0;
+      --text-muted: #6b7280;
+      --text-dim: #374151;
+      --accent: #00e5b0;
+      --accent2: #ff6b35;
+      --accent3: #7c3aed;
+      --level1: #22c55e;
+      --level2: #3b82f6;
+      --level3: #f59e0b;
+      --level4: #a855f7;
+      --error: #ef4444;
+      --success: #10b981;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-ui: 'Syne', sans-serif;
+      --font-code: 'Space Mono', monospace;
+      --radius: 6px;
+      --glow: 0 0 20px rgba(0, 229, 176, 0.15);
+      --glow-strong: 0 0 30px rgba(0, 229, 176, 0.3);
+    }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-html, body {
-  height: 100%;
-  background: var(--bg-base);
-  color: var(--text);
-  font-family: var(--font-ui);
-  overflow: hidden;
-}
+    html,
+    body {
+      height: 100%;
+      background: var(--bg-base);
+      color: var(--text);
+      font-family: var(--font-ui);
+      overflow: hidden;
+    }
 
-/* ── Scanline texture ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.03) 2px,
-    rgba(0,0,0,0.03) 4px
-  );
-  pointer-events: none;
-  z-index: 9999;
-}
+    /* ── Scanline texture ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.03) 2px,
+          rgba(0, 0, 0, 0.03) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
 
-/* ════════════════════════════
+    /* ════════════════════════════
    HEADER
    ════════════════════════════ */
-#header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  height: 52px;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
-  position: relative;
-  z-index: 100;
-  flex-shrink: 0;
-}
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 52px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 100;
+      flex-shrink: 0;
+    }
 
-#header::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
-  opacity: 0.6;
-}
+    #header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+      opacity: 0.6;
+    }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-.logo-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--accent), var(--accent3));
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  box-shadow: 0 0 12px rgba(0,229,176,0.4);
-}
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 0 12px rgba(0, 229, 176, 0.4);
+    }
 
-.logo-text {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
-  color: var(--text);
-}
+    .logo-text {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: var(--text);
+    }
 
-.logo-text span { color: var(--accent); }
+    .logo-text span {
+      color: var(--accent);
+    }
 
-.header-center {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-.lang-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--bg-panel);
-  color: var(--text-muted);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-panel);
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
 
-.lang-btn .lang-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--text-dim);
-}
+    .lang-btn .lang-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+    }
 
-.lang-btn:hover,
-.lang-btn.active {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(0,229,176,0.05);
-}
+    .lang-btn:hover,
+    .lang-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0, 229, 176, 0.05);
+    }
 
-.lang-btn.active .lang-dot { background: var(--accent); }
-.lang-btn[data-lang="python"].active .lang-dot { background: #3b82f6; }
-.lang-btn[data-lang="javascript"].active .lang-dot { background: #f59e0b; }
-.lang-btn[data-lang="c"].active .lang-dot { background: #22c55e; }
-.lang-btn[data-lang="cpp"].active .lang-dot { background: #a855f7; }
+    .lang-btn.active .lang-dot {
+      background: var(--accent);
+    }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+    .lang-btn[data-lang="python"].active .lang-dot {
+      background: #3b82f6;
+    }
 
-.status-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--success);
-  box-shadow: 0 0 8px var(--success);
-  animation: pulse 2s infinite;
-}
+    .lang-btn[data-lang="javascript"].active .lang-dot {
+      background: #f59e0b;
+    }
 
-@keyframes pulse {
-  0%,100% { opacity:1; }
-  50% { opacity:0.4; }
-}
+    .lang-btn[data-lang="c"].active .lang-dot {
+      background: #22c55e;
+    }
 
-/* ════════════════════════════
+    .lang-btn[data-lang="cpp"].active .lang-dot {
+      background: #a855f7;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    /* ════════════════════════════
    LAYOUT
    ════════════════════════════ */
-#app {
-  display: flex;
-  height: calc(100vh - 52px);
-  overflow: hidden;
-}
+    #app {
+      display: flex;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+    }
 
-/* ── Sidebar ── */
-#sidebar {
-  width: 240px;
-  background: var(--bg-surface);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow-y: auto;
-}
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 240px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
 
-.sidebar-section {
-  padding: 14px 14px 0;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 14px;
-}
+    .sidebar-section {
+      padding: 14px 14px 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
 
-.sidebar-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 8px;
-}
+    .sidebar-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
 
-/* Level cards */
-.level-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  cursor: pointer;
-  margin-bottom: 4px;
-  transition: all 0.15s;
-}
+    /* Level cards */
+    .level-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      cursor: pointer;
+      margin-bottom: 4px;
+      transition: all 0.15s;
+    }
 
-.level-card:hover { background: var(--bg-hover); }
+    .level-card:hover {
+      background: var(--bg-hover);
+    }
 
-.level-card.active {
-  border-color: var(--border-glow);
-  background: rgba(0,229,176,0.04);
-}
+    .level-card.active {
+      border-color: var(--border-glow);
+      background: rgba(0, 229, 176, 0.04);
+    }
 
-.level-badge {
-  width: 22px; height: 22px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-code);
-  font-size: 9px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
+    .level-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-code);
+      font-size: 9px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
 
-.level-card[data-level="1"] .level-badge { background:rgba(34,197,94,0.15); color:var(--level1); }
-.level-card[data-level="2"] .level-badge { background:rgba(59,130,246,0.15); color:var(--level2); }
-.level-card[data-level="3"] .level-badge { background:rgba(245,158,11,0.15); color:var(--level3); }
-.level-card[data-level="4"] .level-badge { background:rgba(168,85,247,0.15); color:var(--level4); }
-.level-card[data-level="0"] .level-badge { background:rgba(0,229,176,0.15); color:var(--accent); }
+    .level-card[data-level="1"] .level-badge {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--level1);
+    }
 
-.level-info { flex: 1; min-width: 0; }
-.level-name { font-size: 11px; font-weight: 700; color: var(--text); }
-.level-desc { font-size: 9px; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .level-card[data-level="2"] .level-badge {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--level2);
+    }
 
-/* Snippet library */
-.snippet-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 11px;
-  color: var(--text-muted);
-  transition: all 0.12s;
-  margin-bottom: 2px;
-}
+    .level-card[data-level="3"] .level-badge {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--level3);
+    }
 
-.snippet-item:hover {
-  background: var(--bg-hover);
-  color: var(--text);
-}
+    .level-card[data-level="4"] .level-badge {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--level4);
+    }
 
-.snippet-item .si { font-size: 13px; }
+    .level-card[data-level="0"] .level-badge {
+      background: rgba(0, 229, 176, 0.15);
+      color: var(--accent);
+    }
 
-/* ── Main Editor Area ── */
-#main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
-}
+    .level-info {
+      flex: 1;
+      min-width: 0;
+    }
 
-/* Toolbar */
-#toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
+    .level-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+    }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--bg-panel);
-  color: var(--text-muted);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  letter-spacing: 0.2px;
-  white-space: nowrap;
-}
+    .level-desc {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-.btn:hover { background: var(--bg-hover); color: var(--text); border-color: #3a3f4a; }
-.btn:active { transform: scale(0.97); }
+    /* Snippet library */
+    .snippet-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--text-muted);
+      transition: all 0.12s;
+      margin-bottom: 2px;
+    }
 
-.btn-primary {
-  background: var(--accent);
-  color: #000;
-  border-color: var(--accent);
-  box-shadow: 0 0 12px rgba(0,229,176,0.2);
-}
-.btn-primary:hover { background: #00c9a0; border-color: #00c9a0; color: #000; }
+    .snippet-item:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
 
-.btn-run {
-  background: linear-gradient(135deg, var(--accent), #00c9a0);
-  color: #000;
-  border-color: var(--accent);
-  font-weight: 700;
-  padding: 6px 20px;
-  box-shadow: 0 0 16px rgba(0,229,176,0.25);
-}
-.btn-run:hover { box-shadow: 0 0 24px rgba(0,229,176,0.4); }
+    .snippet-item .si {
+      font-size: 13px;
+    }
 
-.btn-agentic {
-  background: linear-gradient(135deg, var(--accent2), #ff8c5a);
-  color: #000;
-  border-color: var(--accent2);
-  font-weight: 700;
-  box-shadow: 0 0 12px rgba(255,107,53,0.2);
-}
-.btn-agentic:hover { box-shadow: 0 0 24px rgba(255,107,53,0.35); }
+    /* ── Main Editor Area ── */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
 
-.btn-fix { border-color: #374151; }
-.btn-fix:hover { border-color: var(--error); color: var(--error); }
+    /* Toolbar */
+    #toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
 
-.btn-explain:hover { border-color: var(--level2); color: var(--level2); }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-panel);
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
 
-.spacer { flex: 1; }
+    .btn:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+      border-color: #3a3f4a;
+    }
 
-.model-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  font-size: 10px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-}
+    .btn:active {
+      transform: scale(0.97);
+    }
 
-.model-badge-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-}
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(0, 229, 176, 0.2);
+    }
 
-/* ── Editor/Output Split ── */
-#work-area {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
+    .btn-primary:hover {
+      background: #00c9a0;
+      border-color: #00c9a0;
+      color: #000;
+    }
 
-/* Code Editor */
-#editor-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--border);
-  min-width: 0;
-  position: relative;
-}
+    .btn-run {
+      background: linear-gradient(135deg, var(--accent), #00c9a0);
+      color: #000;
+      border-color: var(--accent);
+      font-weight: 700;
+      padding: 6px 20px;
+      box-shadow: 0 0 16px rgba(0, 229, 176, 0.25);
+    }
 
-.pane-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 12px;
-  background: var(--bg-panel);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
+    .btn-run:hover {
+      box-shadow: 0 0 24px rgba(0, 229, 176, 0.4);
+    }
 
-.pane-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+    .btn-agentic {
+      background: linear-gradient(135deg, var(--accent2), #ff8c5a);
+      color: #000;
+      border-color: var(--accent2);
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(255, 107, 53, 0.2);
+    }
 
-.pane-title-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-}
+    .btn-agentic:hover {
+      box-shadow: 0 0 24px rgba(255, 107, 53, 0.35);
+    }
 
-#code-editor {
-  flex: 1;
-  background: var(--bg-base);
-  color: #e2e8f0;
-  font-family: var(--font-mono);
-  font-size: 13.5px;
-  line-height: 1.7;
-  padding: 20px;
-  border: none;
-  outline: none;
-  resize: none;
-  tab-size: 4;
-  overflow-y: auto;
-  caret-color: var(--accent);
-}
+    .btn-fix {
+      border-color: #374151;
+    }
 
-#code-editor::placeholder { color: var(--text-dim); font-style: italic; }
-#code-editor::selection { background: rgba(0,229,176,0.2); }
+    .btn-fix:hover {
+      border-color: var(--error);
+      color: var(--error);
+    }
 
-/* Output Pane */
-#output-pane {
-  width: 42%;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-base);
-  flex-shrink: 0;
-}
+    .btn-explain:hover {
+      border-color: var(--level2);
+      color: var(--level2);
+    }
 
-#output-tabs {
-  display: flex;
-  background: var(--bg-panel);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
+    .spacer {
+      flex: 1;
+    }
 
-.out-tab {
-  padding: 8px 16px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s;
-}
+    .model-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
 
-.out-tab:hover { color: var(--text-muted); }
-.out-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .model-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
 
-#output-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  line-height: 1.7;
-  display: flex;
-  flex-direction: column;
-}
-/* When showing explain-wrap, remove padding so it fills flush */
-#output-content:has(.explain-wrap) {
-  padding: 0;
-  overflow: hidden;
-}
+    /* ── Editor/Output Split ── */
+    #work-area {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
 
-/* Terminal output */
-.terminal-block {
-  background: #080a0e;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.8;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
+    /* Code Editor */
+    #editor-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      min-width: 0;
+      position: relative;
+    }
 
-.terminal-block.success { border-color: rgba(16,185,129,0.3); }
-.terminal-block.error { border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+    .pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
 
-.out-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  font-size: 10px;
-  color: var(--text-muted);
-  font-family: var(--font-ui);
-}
+    .pane-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-.out-tag {
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
+    .pane-title-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
 
-.out-tag.ok { background: rgba(16,185,129,0.15); color: var(--success); }
-.out-tag.fail { background: rgba(239,68,68,0.15); color: var(--error); }
-.out-tag.info { background: rgba(59,130,246,0.15); color: var(--level2); }
+    #code-editor {
+      flex: 1;
+      background: var(--bg-base);
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.7;
+      padding: 20px;
+      border: none;
+      outline: none;
+      resize: none;
+      tab-size: 4;
+      overflow-y: auto;
+      caret-color: var(--accent);
+    }
 
-/* ── Explanation panel ── */
-.explain-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  height: 100%;
-  overflow: hidden;
-}
+    #code-editor::placeholder {
+      color: var(--text-dim);
+      font-style: italic;
+    }
 
-/* Top badge bar */
-.explain-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px 8px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  background: var(--bg-panel);
-}
-.explain-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  background: rgba(0,229,176,0.08);
-  border: 1px solid rgba(0,229,176,0.2);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-family: var(--font-ui);
-}
-.explain-badge-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 6px var(--accent);
-  animation: pulse 2s infinite;
-}
-.explain-by {
-  font-size: 10px;
-  color: var(--text-dim);
-  font-family: var(--font-code);
-  margin-left: auto;
-}
+    #code-editor::selection {
+      background: rgba(0, 229, 176, 0.2);
+    }
 
-/* Scrollable content */
-.explain-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    /* Output Pane */
+    #output-pane {
+      width: 42%;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-base);
+      flex-shrink: 0;
+    }
 
-/* Each numbered/section block */
-.explain-block {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-  font-family: var(--font-ui);
-  font-size: 12.5px;
-  line-height: 1.75;
-  color: var(--text);
-  transition: border-color 0.15s;
-}
-.explain-block:hover { border-color: rgba(0,229,176,0.5); }
+    #output-tabs {
+      display: flex;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
 
-.explain-block h3 {
-  color: var(--accent);
-  font-size: 11px;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.explain-block h3::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
+    .out-tab {
+      padding: 8px 16px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
 
-/* Section headings inside explanation text (###, bold lines) */
-.explain-section-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text);
-  margin: 8px 0 4px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.explain-section-title::before {
-  content: '';
-  width: 3px; height: 14px;
-  background: var(--accent2);
-  border-radius: 2px;
-  flex-shrink: 0;
-}
+    .out-tab:hover {
+      color: var(--text-muted);
+    }
 
-.explain-block ul {
-  padding-left: 18px;
-  margin: 4px 0;
-}
-.explain-block li {
-  margin-bottom: 5px;
-  color: var(--text-muted);
-}
-.explain-block li::marker { color: var(--accent); }
-.explain-block strong { color: var(--text); font-weight: 700; }
-.explain-block p { margin: 6px 0; color: var(--text-muted); }
+    .out-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
 
-.explain-block code {
-  background: rgba(0,229,176,0.07);
-  border: 1px solid rgba(0,229,176,0.15);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  color: var(--accent);
-  white-space: nowrap;
-}
+    #output-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+    }
 
-/* Empty state */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--text-dim);
-  gap: 10px;
-  text-align: center;
-  padding: 20px;
-}
+    /* When showing explain-wrap, remove padding so it fills flush */
+    #output-content:has(.explain-wrap) {
+      padding: 0;
+      overflow: hidden;
+    }
 
-.empty-icon { font-size: 40px; opacity: 0.3; }
-.empty-text { font-size: 12px; font-family: var(--font-ui); line-height: 1.6; }
+    /* Terminal output */
+    .terminal-block {
+      background: #080a0e;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
 
-/* ════════════════════════════
+    .terminal-block.success {
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .terminal-block.error {
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .out-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+    }
+
+    .out-tag {
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .out-tag.ok {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+
+    .out-tag.fail {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+    }
+
+    .out-tag.info {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--level2);
+    }
+
+    /* ── Explanation panel ── */
+    .explain-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Top badge bar */
+    .explain-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px 8px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--bg-panel);
+    }
+
+    .explain-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(0, 229, 176, 0.08);
+      border: 1px solid rgba(0, 229, 176, 0.2);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-family: var(--font-ui);
+    }
+
+    .explain-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    .explain-by {
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: var(--font-code);
+      margin-left: auto;
+    }
+
+    /* Scrollable content */
+    .explain-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Each numbered/section block */
+    .explain-block {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-family: var(--font-ui);
+      font-size: 12.5px;
+      line-height: 1.75;
+      color: var(--text);
+      transition: border-color 0.15s;
+    }
+
+    .explain-block:hover {
+      border-color: rgba(0, 229, 176, 0.5);
+    }
+
+    .explain-block h3 {
+      color: var(--accent);
+      font-size: 11px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .explain-block h3::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Section headings inside explanation text (###, bold lines) */
+    .explain-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 8px 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .explain-section-title::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: var(--accent2);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .explain-block ul {
+      padding-left: 18px;
+      margin: 4px 0;
+    }
+
+    .explain-block li {
+      margin-bottom: 5px;
+      color: var(--text-muted);
+    }
+
+    .explain-block li::marker {
+      color: var(--accent);
+    }
+
+    .explain-block strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .explain-block p {
+      margin: 6px 0;
+      color: var(--text-muted);
+    }
+
+    .explain-block code {
+      background: rgba(0, 229, 176, 0.07);
+      border: 1px solid rgba(0, 229, 176, 0.15);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-dim);
+      gap: 10px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .empty-icon {
+      font-size: 40px;
+      opacity: 0.3;
+    }
+
+    .empty-text {
+      font-size: 12px;
+      font-family: var(--font-ui);
+      line-height: 1.6;
+    }
+
+    /* ════════════════════════════
    AGENTIC PANEL (bottom)
    ════════════════════════════ */
-#agentic-bar {
-  padding: 10px 14px;
-  background: var(--bg-surface);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  position: relative;
-}
+    #agentic-bar {
+      padding: 10px 14px;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      position: relative;
+    }
 
-#agentic-bar::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent2), transparent);
-  opacity: 0.5;
-}
+    #agentic-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+      opacity: 0.5;
+    }
 
-.agentic-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
+    .agentic-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
 
-#agentic-input {
-  flex: 1;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-family: var(--font-ui);
-  font-size: 13px;
-  padding: 8px 14px;
-  outline: none;
-  transition: border-color 0.15s;
-}
+    #agentic-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      padding: 8px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
 
-#agentic-input:focus { border-color: var(--accent2); box-shadow: 0 0 12px rgba(255,107,53,0.1); }
-#agentic-input::placeholder { color: var(--text-dim); }
+    #agentic-input:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 12px rgba(255, 107, 53, 0.1);
+    }
 
-/* ════════════════════════════
+    #agentic-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* ════════════════════════════
    CHAT PANEL (right sidebar)
    ════════════════════════════ */
-#chat-panel {
-  width: 0;
-  overflow: hidden;
-  transition: width 0.2s ease;
-  border-left: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-surface);
-  flex-shrink: 0;
-}
+    #chat-panel {
+      width: 0;
+      overflow: hidden;
+      transition: width 0.2s ease;
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-surface);
+      flex-shrink: 0;
+    }
 
-#chat-panel.open { width: 300px; }
+    #chat-panel.open {
+      width: 300px;
+    }
 
-.chat-header {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+    .chat-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-#chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    #chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-.chat-msg {
-  max-width: 90%;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 12px;
-  line-height: 1.6;
-}
+    .chat-msg {
+      max-width: 90%;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
 
-.chat-msg.user {
-  background: rgba(0,229,176,0.1);
-  border: 1px solid rgba(0,229,176,0.2);
-  color: var(--text);
-  align-self: flex-end;
-}
+    .chat-msg.user {
+      background: rgba(0, 229, 176, 0.1);
+      border: 1px solid rgba(0, 229, 176, 0.2);
+      color: var(--text);
+      align-self: flex-end;
+    }
 
-.chat-msg.ai {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  color: var(--text);
-  align-self: flex-start;
-}
+    .chat-msg.ai {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      align-self: flex-start;
+    }
 
-.chat-input-row {
-  display: flex;
-  gap: 6px;
-  padding: 10px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-}
+    .chat-input-row {
+      display: flex;
+      gap: 6px;
+      padding: 10px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
 
-#chat-input {
-  flex: 1;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  padding: 6px 10px;
-  outline: none;
-}
+    #chat-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      padding: 6px 10px;
+      outline: none;
+    }
 
-#chat-input:focus { border-color: var(--accent); }
+    #chat-input:focus {
+      border-color: var(--accent);
+    }
 
-/* ════════════════════════════
+    /* ════════════════════════════
    LOADER
    ════════════════════════════ */
-.loader-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(10,12,16,0.75);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  z-index: 50;
-  backdrop-filter: blur(2px);
-}
+    .loader-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 12, 16, 0.75);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 50;
+      backdrop-filter: blur(2px);
+    }
 
-.loader-spinner {
-  width: 36px; height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
+    .loader-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-.loader-text {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  animation: blink 1.2s ease-in-out infinite;
-}
+    .loader-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      animation: blink 1.2s ease-in-out infinite;
+    }
 
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    @keyframes blink {
 
-/* ════════════════════════════
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
+
+    /* ════════════════════════════
    SCROLLBAR
    ════════════════════════════ */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #374151; }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
 
-/* ════════════════════════════
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #374151;
+    }
+
+    /* ════════════════════════════
    TOAST
    ════════════════════════════ */
-#toast-container {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9998;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9998;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-.toast {
-  padding: 10px 16px;
-  border-radius: var(--radius);
-  font-size: 12px;
-  font-family: var(--font-ui);
-  font-weight: 600;
-  border: 1px solid;
-  animation: slideIn 0.2s ease;
-  max-width: 320px;
-}
+    .toast {
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: var(--font-ui);
+      font-weight: 600;
+      border: 1px solid;
+      animation: slideIn 0.2s ease;
+      max-width: 320px;
+    }
 
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to   { transform: translateX(0); opacity: 1; }
-}
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
 
-.toast.success { background: rgba(16,185,129,0.1); border-color: var(--success); color: var(--success); }
-.toast.error   { background: rgba(239,68,68,0.1);  border-color: var(--error);   color: var(--error);   }
-.toast.info    { background: rgba(59,130,246,0.1);  border-color: var(--level2);  color: var(--level2);  }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
 
-/* ════════════════════════════
+    .toast.success {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .toast.error {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .toast.info {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: var(--level2);
+      color: var(--level2);
+    }
+
+    /* ════════════════════════════
    STREAM CURSOR
    ════════════════════════════ */
-.stream-cursor::after {
-  content: '▋';
-  color: var(--accent);
-  animation: blink 0.7s step-end infinite;
-}
+    .stream-cursor::after {
+      content: '▋';
+      color: var(--accent);
+      animation: blink 0.7s step-end infinite;
+    }
 
-/* ════════════════════════════
+    /* ════════════════════════════
    AGENTIC STEP FEED
    ════════════════════════════ */
-.agent-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 11px;
-  font-family: var(--font-ui);
-  animation: fadeIn 0.3s ease;
-}
+    .agent-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-family: var(--font-ui);
+      animation: fadeIn 0.3s ease;
+    }
 
-@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px)
+      }
 
-.agent-step-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-.agent-step-text { color: var(--text-muted); flex: 1; }
-.agent-step-text strong { color: var(--text); }
-.agent-step-time { color: var(--text-dim); font-family: var(--font-mono); font-size: 9px; flex-shrink: 0; }
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
 
-/* Syntax highlight basic */
-.kw { color: #c792ea; }
-.str { color: #c3e88d; }
-.num { color: #f78c6c; }
-.cm { color: #546e7a; font-style: italic; }
-.fn { color: #82aaff; }
+    .agent-step-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
 
-/* AI status card in sidebar */
-.ai-status-card {
-  display:flex;align-items:center;gap:8px;padding:8px 10px;
-  background:rgba(0,229,176,.04);border:1px solid rgba(0,229,176,.15);
-  border-radius:var(--radius);
-}
-.ai-status-icon { font-size:16px; flex-shrink:0; }
-.ai-status-info { flex:1; min-width:0; }
-.ai-status-name { font-size:11px;font-weight:700;color:var(--accent); }
-.ai-status-desc { font-size:9px;color:var(--text-muted);margin-top:1px; }
-.status-dot.online { background:var(--success)!important;box-shadow:0 0 8px var(--success); }
+    .agent-step-text {
+      color: var(--text-muted);
+      flex: 1;
+    }
 
+    .agent-step-text strong {
+      color: var(--text);
+    }
 
-/* ── INTERACTIVE TERMINAL ── */
-#terminal-pane {
-  display:none;flex-direction:column;height:100%;background:var(--bg-base);
-}
-#terminal-screen {
-  flex:1;overflow-y:auto;padding:12px 16px;
-  font-family:var(--font-mono);font-size:12.5px;line-height:1.75;color:#e2e8f0;
-}
-.term-line { display:block;white-space:pre-wrap;word-break:break-word;min-height:1em; }
-.term-line.out { color:#e2e8f0; }
-.term-line.err { color:#fca5a5; }
-.term-line.in  { color:#67e8f9; }
-.term-line.sys { color:var(--text-dim);font-style:italic; }
-#terminal-input-row {
-  display:flex;align-items:center;gap:0;padding:8px 12px;
-  border-top:1px solid var(--border);background:var(--bg-panel);flex-shrink:0;
-}
-.term-prompt {
-  color:var(--accent);font-family:var(--font-mono);font-size:13px;
-  margin-right:8px;flex-shrink:0;user-select:none;
-}
-#terminal-user-input {
-  flex:1;background:transparent;border:none;outline:none;
-  color:var(--text);font-family:var(--font-mono);font-size:13px;caret-color:var(--accent);
-}
-#terminal-user-input::placeholder { color:var(--text-dim); }
-#terminal-user-input:disabled { opacity:0.4;cursor:not-allowed; }
-.term-send-btn {
-  padding:4px 14px;border-radius:var(--radius);background:var(--accent);
-  color:#000;border:none;font-family:var(--font-ui);font-size:11px;font-weight:700;
-  cursor:pointer;flex-shrink:0;transition:opacity .15s;
-}
-.term-send-btn:hover { opacity:.85; }
-.term-send-btn:disabled { opacity:.3;cursor:not-allowed; }
-.term-controls {
-  display:flex;align-items:center;gap:6px;padding:5px 12px;
-  background:var(--bg-panel);border-bottom:1px solid var(--border);flex-shrink:0;
-}
-.term-ctrl-btn {
-  display:flex;align-items:center;gap:4px;padding:3px 10px;
-  border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-input);
-  color:var(--text-muted);font-family:var(--font-ui);font-size:10px;font-weight:600;cursor:pointer;transition:all .12s;
-}
-.term-ctrl-btn:hover { border-color:var(--error);color:var(--error); }
-.term-status { font-size:10px;font-family:var(--font-mono);margin-left:auto; }
-.term-status.running { color:var(--success); }
-.term-status.stopped { color:var(--text-dim); }
+    .agent-step-time {
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      flex-shrink: 0;
+    }
 
+    /* Syntax highlight basic */
+    .kw {
+      color: #c792ea;
+    }
 
-/* ══ ADDED v2: STEMbot animations & UI polish ══ */
+    .str {
+      color: #c3e88d;
+    }
 
-/* Logo image float + glow */
-.logo img {
-  animation: botFloat 3s ease-in-out infinite;
-  box-shadow: 0 0 16px rgba(0,229,176,0.4), 0 0 32px rgba(0,229,176,0.12);
-}
-@keyframes botFloat {
-  0%,100% { transform: translateY(0px) rotate(0deg); }
-  33%      { transform: translateY(-4px) rotate(-1.5deg); }
-  66%      { transform: translateY(-2px) rotate(1deg); }
-}
+    .num {
+      color: #f78c6c;
+    }
 
-/* Pulse ring around logo */
-.logo-img-wrap { position: relative; display: inline-block; }
-.logo-img-wrap::after {
-  content: ''; position: absolute; inset: -4px; border-radius: 14px;
-  border: 1.5px solid rgba(0,229,176,0.22);
-  animation: ringPulse 3s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes ringPulse {
-  0%,100% { opacity: 0.2; transform: scale(1); }
-  50%      { opacity: 0.55; transform: scale(1.07); }
-}
+    .cm {
+      color: #546e7a;
+      font-style: italic;
+    }
 
-/* Header neon underline (replaces old one) */
-#header::after {
-  background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), var(--accent3), transparent) !important;
-  opacity: 0.5 !important;
-}
+    .fn {
+      color: #82aaff;
+    }
 
-/* Bot typing indicator in header */
-.bot-typing-hint {
-  display: flex; align-items: center; gap: 5px;
-  padding: 3px 9px; border-radius: 20px;
-  background: rgba(0,229,176,0.04); border: 1px solid rgba(0,229,176,0.1);
-  font-size: 9px; color: var(--text-dim); font-family: var(--font-code);
-  letter-spacing: 0.5px; margin-left: 6px;
-}
-.typing-dots { display: flex; gap: 3px; }
-.typing-dots span {
-  width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
-  animation: typeDot 1.4s ease-in-out infinite;
-}
-.typing-dots span:nth-child(2) { animation-delay: .2s; }
-.typing-dots span:nth-child(3) { animation-delay: .4s; }
-@keyframes typeDot { 0%,80%,100%{opacity:0.15;transform:scale(0.8);} 40%{opacity:1;transform:scale(1);} }
+    /* AI status card in sidebar */
+    .ai-status-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: rgba(0, 229, 176, .04);
+      border: 1px solid rgba(0, 229, 176, .15);
+      border-radius: var(--radius);
+    }
 
-/* Status as pill */
-.status-pill {
-  display: flex; align-items: center; gap: 6px;
-  padding: 4px 10px; border-radius: 20px;
-  background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.15);
-}
+    .ai-status-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
 
-/* Logo subtitle */
-.logo-sub {
-  font-size: 9px; color: var(--text-muted); letter-spacing: 1.5px;
-  text-transform: uppercase; font-family: var(--font-code);
-}
+    .ai-status-info {
+      flex: 1;
+      min-width: 0;
+    }
 
-/* STEMbot sidebar mascot panel */
-.bot-side-panel {
-  padding: 14px 14px 10px;
-  border-bottom: 1px solid var(--border);
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-}
-.bot-canvas-wrap {
-  width: 90px; height: 90px;
-  animation: botBob 4s ease-in-out infinite;
-}
-@keyframes botBob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
-#bot-canvas { display: block; border-radius: 10px; width: 90px; height: 90px; }
+    .ai-status-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+    }
 
-/* Code ticker under bot */
-.bot-code-ticker {
-  width: 100%; overflow: hidden; height: 34px;
-  font-family: var(--font-mono); font-size: 8px;
-  color: rgba(0,229,176,0.28); line-height: 1.9; text-align: center;
-}
+    .ai-status-desc {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
 
-/* Sidebar label tweak */
-.sidebar-label {
-  display: flex; align-items: center; gap: 5px;
-}
-
-/* AI card glow on hover */
-.ai-status-card { transition: border-color 0.2s, box-shadow 0.2s; cursor: default; }
-.ai-status-card:hover {
-  border-color: rgba(0,229,176,0.3);
-  box-shadow: 0 0 16px rgba(0,229,176,0.06);
-}
-.ai-online-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--success); box-shadow: 0 0 6px var(--success);
-  flex-shrink: 0; animation: pulse 2s infinite;
-}
-.ai-status-icon { animation: iconPop 3s ease-in-out infinite; }
-@keyframes iconPop { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
-
-/* Snippet item hover glow */
-.snippet-item {
-  border: 1px solid transparent; transition: all 0.12s;
-}
-.snippet-item:hover {
-  border-color: rgba(0,229,176,0.1);
-  transform: translateX(2px);
-}
-
-/* Library chips */
-.lib-chip {
-  display: inline-block; background: var(--bg-input);
-  border: 1px solid var(--border); border-radius: 3px;
-  padding: 1px 6px; margin: 2px; font-size: 9px;
-  color: var(--text-muted); cursor: pointer;
-  transition: all 0.12s; font-family: var(--font-mono);
-}
-.lib-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,176,0.04); }
-
-/* Run button shimmer */
-.btn-run { position: relative; overflow: hidden; }
-.btn-run::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
-  transform: translateX(-100%); transition: transform 0.4s;
-}
-.btn-run:hover::before { transform: translateX(100%); }
-
-/* Agentic button shimmer */
-.btn-agentic { position: relative; overflow: hidden; }
-.btn-agentic::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
-  transform: translateX(-100%); transition: transform 0.4s;
-}
-.btn-agentic:hover::before { transform: translateX(100%); }
-
-/* Active tab neon glow */
-.out-tab.active::after {
-  content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
-  background: var(--accent); box-shadow: 0 0 8px var(--accent);
-}
-.out-tab { position: relative; }
-
-/* Pane title dot blink */
-.pane-title-dot { animation: dotBlink 2s ease-in-out infinite; }
-@keyframes dotBlink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
-
-/* Loader shows STEMbot image */
-.loader-bot-wrap {
-  position: relative; width: 52px; height: 52px;
-  animation: botBob 1s ease-in-out infinite;
-}
-.loader-bot-wrap img {
-  width: 52px; height: 52px; object-fit: contain; border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0,229,176,0.4);
-}
-.loader-bot-fallback {
-  width: 52px; height: 52px; border: 3px solid var(--border);
-  border-top-color: var(--accent); border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-/* Kbd hint */
-.kbd-hint {
-  font-size: 9px; color: var(--text-dim); font-family: var(--font-code);
-  padding: 2px 6px; border: 1px solid var(--border); border-radius: 3px;
-  background: var(--bg-panel);
-}
-
-/* Agentic bot icon */
-.agentic-bot-icon {
-  width: 26px; height: 26px; object-fit: contain; border-radius: 6px;
-  box-shadow: 0 0 10px rgba(255,107,53,0.3); flex-shrink: 0;
-  animation: botFloat 2.5s ease-in-out infinite;
-}
-.agentic-bot-fallback { display: none; font-size: 18px; flex-shrink: 0; }
-
-/* Chat header bot image */
-.chat-header-bot { display: flex; align-items: center; gap: 7px; }
-.chat-header-bot img { width: 22px; height: 22px; object-fit: contain; border-radius: 5px; }
-
-/* Empty state bot float */
-.empty-bot { animation: botBob 4s ease-in-out infinite; border-radius: 8px; }
-
-/* Stat rows */
-.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; font-size: 10px; color: var(--text-muted); }
-.stat-val { font-family: var(--font-mono); font-weight: 700; font-size: 11px; }
-
-/* Toast fade-out */
-.toast { transition: opacity 0.4s, transform 0.4s; }
-.toast.fade-out { opacity: 0; transform: translateX(20px); }
-
-/* term-line.ok */
-.term-line.ok { color: var(--success); }
-
-/* Term ctrl btn colours */
-.term-ctrl-btn.stop:hover  { border-color: var(--error); color: var(--error); }
-.term-ctrl-btn.clear:hover { border-color: var(--level3); color: var(--level3); }
-
-/* TERMINAL_EMPTY_HTML defined in JS now — just styling */
+    .status-dot.online {
+      background: var(--success) !important;
+      box-shadow: 0 0 8px var(--success);
+    }
 
 
-/* CM styles moved to after CDN */
+    /* ── INTERACTIVE TERMINAL ── */
+    #terminal-pane {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      background: var(--bg-base);
+    }
+
+    #terminal-screen {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.75;
+      color: #e2e8f0;
+    }
+
+    .term-line {
+      display: block;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 1em;
+    }
+
+    .term-line.out {
+      color: #e2e8f0;
+    }
+
+    .term-line.err {
+      color: #fca5a5;
+    }
+
+    .term-line.in {
+      color: #67e8f9;
+    }
+
+    .term-line.sys {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    #terminal-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 8px 12px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-panel);
+      flex-shrink: 0;
+    }
+
+    .term-prompt {
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      margin-right: 8px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    #terminal-user-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      caret-color: var(--accent);
+    }
+
+    #terminal-user-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    #terminal-user-input:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .term-send-btn {
+      padding: 4px 14px;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: #000;
+      border: none;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: opacity .15s;
+    }
+
+    .term-send-btn:hover {
+      opacity: .85;
+    }
+
+    .term-send-btn:disabled {
+      opacity: .3;
+      cursor: not-allowed;
+    }
+
+    .term-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .term-ctrl-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .12s;
+    }
+
+    .term-ctrl-btn:hover {
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .term-status {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      margin-left: auto;
+    }
+
+    .term-status.running {
+      color: var(--success);
+    }
+
+    .term-status.stopped {
+      color: var(--text-dim);
+    }
 
 
-</style>
-<!-- CodeMirror syntax highlighting -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.js"></script>
-<style>
-/* ══════════════════════════════════════════════════════════
+    /* ══ ADDED v2: STEMbot animations & UI polish ══ */
+
+    /* Logo image float + glow */
+    .logo img {
+      animation: botFloat 3s ease-in-out infinite;
+      box-shadow: 0 0 16px rgba(0, 229, 176, 0.4), 0 0 32px rgba(0, 229, 176, 0.12);
+    }
+
+    @keyframes botFloat {
+
+      0%,
+      100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+
+      33% {
+        transform: translateY(-4px) rotate(-1.5deg);
+      }
+
+      66% {
+        transform: translateY(-2px) rotate(1deg);
+      }
+    }
+
+    /* Pulse ring around logo */
+    .logo-img-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .logo-img-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(0, 229, 176, 0.22);
+      animation: ringPulse 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes ringPulse {
+
+      0%,
+      100% {
+        opacity: 0.2;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.55;
+        transform: scale(1.07);
+      }
+    }
+
+    /* Header neon underline (replaces old one) */
+    #header::after {
+      background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), var(--accent3), transparent) !important;
+      opacity: 0.5 !important;
+    }
+
+    /* Bot typing indicator in header */
+    .bot-typing-hint {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: rgba(0, 229, 176, 0.04);
+      border: 1px solid rgba(0, 229, 176, 0.1);
+      font-size: 9px;
+      color: var(--text-dim);
+      font-family: var(--font-code);
+      letter-spacing: 0.5px;
+      margin-left: 6px;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 3px;
+    }
+
+    .typing-dots span {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: typeDot 1.4s ease-in-out infinite;
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: .2s;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: .4s;
+    }
+
+    @keyframes typeDot {
+
+      0%,
+      80%,
+      100% {
+        opacity: 0.15;
+        transform: scale(0.8);
+      }
+
+      40% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Status as pill */
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.06);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+
+    /* Logo subtitle */
+    .logo-sub {
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-family: var(--font-code);
+    }
+
+    /* STEMbot sidebar mascot panel */
+    .bot-side-panel {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bot-canvas-wrap {
+      width: 90px;
+      height: 90px;
+      animation: botBob 4s ease-in-out infinite;
+    }
+
+    @keyframes botBob {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+
+    #bot-canvas {
+      display: block;
+      border-radius: 10px;
+      width: 90px;
+      height: 90px;
+    }
+
+    /* Code ticker under bot */
+    .bot-code-ticker {
+      width: 100%;
+      overflow: hidden;
+      height: 34px;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: rgba(0, 229, 176, 0.28);
+      line-height: 1.9;
+      text-align: center;
+    }
+
+    /* Sidebar label tweak */
+    .sidebar-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* AI card glow on hover */
+    .ai-status-card {
+      transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+
+    .ai-status-card:hover {
+      border-color: rgba(0, 229, 176, 0.3);
+      box-shadow: 0 0 16px rgba(0, 229, 176, 0.06);
+    }
+
+    .ai-online-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      flex-shrink: 0;
+      animation: pulse 2s infinite;
+    }
+
+    .ai-status-icon {
+      animation: iconPop 3s ease-in-out infinite;
+    }
+
+    @keyframes iconPop {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Snippet item hover glow */
+    .snippet-item {
+      border: 1px solid transparent;
+      transition: all 0.12s;
+    }
+
+    .snippet-item:hover {
+      border-color: rgba(0, 229, 176, 0.1);
+      transform: translateX(2px);
+    }
+
+    /* Library chips */
+    .lib-chip {
+      display: inline-block;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin: 2px;
+      font-size: 9px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.12s;
+      font-family: var(--font-mono);
+    }
+
+    .lib-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0, 229, 176, 0.04);
+    }
+
+    /* Run button shimmer */
+    .btn-run {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-run::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.4s;
+    }
+
+    .btn-run:hover::before {
+      transform: translateX(100%);
+    }
+
+    /* Agentic button shimmer */
+    .btn-agentic {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-agentic::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.4s;
+    }
+
+    .btn-agentic:hover::before {
+      transform: translateX(100%);
+    }
+
+    /* Active tab neon glow */
+    .out-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .out-tab {
+      position: relative;
+    }
+
+    /* Pane title dot blink */
+    .pane-title-dot {
+      animation: dotBlink 2s ease-in-out infinite;
+    }
+
+    @keyframes dotBlink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.2;
+      }
+    }
+
+    /* Loader shows STEMbot image */
+    .loader-bot-wrap {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      animation: botBob 1s ease-in-out infinite;
+    }
+
+    .loader-bot-wrap img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 229, 176, 0.4);
+    }
+
+    .loader-bot-fallback {
+      width: 52px;
+      height: 52px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* Kbd hint */
+    .kbd-hint {
+      font-size: 9px;
+      color: var(--text-dim);
+      font-family: var(--font-code);
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--bg-panel);
+    }
+
+    /* Agentic bot icon */
+    .agentic-bot-icon {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+      flex-shrink: 0;
+      animation: botFloat 2.5s ease-in-out infinite;
+    }
+
+    .agentic-bot-fallback {
+      display: none;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Chat header bot image */
+    .chat-header-bot {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .chat-header-bot img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      border-radius: 5px;
+    }
+
+    /* Empty state bot float */
+    .empty-bot {
+      animation: botBob 4s ease-in-out infinite;
+      border-radius: 8px;
+    }
+
+    /* Stat rows */
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 0;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .stat-val {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    /* Toast fade-out */
+    .toast {
+      transition: opacity 0.4s, transform 0.4s;
+    }
+
+    .toast.fade-out {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+
+    /* term-line.ok */
+    .term-line.ok {
+      color: var(--success);
+    }
+
+    /* Term ctrl btn colours */
+    .term-ctrl-btn.stop:hover {
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .term-ctrl-btn.clear:hover {
+      border-color: var(--level3);
+      color: var(--level3);
+    }
+
+    /* TERMINAL_EMPTY_HTML defined in JS now — just styling */
+
+
+    /* CM styles moved to after CDN */
+  </style>
+  <!-- CodeMirror syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/comment/comment.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.js"></script>
+  <style>
+    /* ══════════════════════════════════════════════════════════
    CODEMIRROR COMPLETE DARK OVERRIDE — loads AFTER CDN CSS
    so every rule wins with full specificity + !important
    ══════════════════════════════════════════════════════════ */
 
-/* ── Layout wrappers ── */
-#code-editor-wrap {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: #0a0c10;
-}
-#code-editor { display: none !important; }
+    /* ── Layout wrappers ── */
+    #code-editor-wrap {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: #0a0c10;
+    }
 
-/* ── Main CM container — nuke ALL white backgrounds ── */
-.CodeMirror,
-.CodeMirror *,
-.CodeMirror-wrap,
-.CodeMirror-lines,
-.CodeMirror-code,
-.CodeMirror-line,
-.CodeMirror-sizer,
-.CodeMirror-gutter-filler,
-.CodeMirror-scrollbar-filler {
-  background: #0a0c10 !important;
-}
+    #code-editor {
+      display: none !important;
+    }
 
-/* ── Explicit CM element styles ── */
-.CodeMirror {
-  flex: 1;
-  height: 100% !important;
-  color: #e2e8f0 !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  font-size: 13.5px !important;
-  line-height: 1.7 !important;
-  padding: 0 !important;
-  border: none !important;
-  border-radius: 0 !important;
-  background: #0a0c10 !important;
-}
-.CodeMirror-scroll {
-  background: #0a0c10 !important;
-  padding-bottom: 30px;
-}
-.CodeMirror-lines {
-  padding: 20px 0 !important;
-  background: #0a0c10 !important;
-}
-.CodeMirror pre.CodeMirror-line,
-.CodeMirror pre.CodeMirror-line-like {
-  background: transparent !important;
-  font-family: 'JetBrains Mono', monospace !important;
-}
+    /* ── Main CM container — nuke ALL white backgrounds ── */
+    .CodeMirror,
+    .CodeMirror *,
+    .CodeMirror-wrap,
+    .CodeMirror-lines,
+    .CodeMirror-code,
+    .CodeMirror-line,
+    .CodeMirror-sizer,
+    .CodeMirror-gutter-filler,
+    .CodeMirror-scrollbar-filler {
+      background: #0a0c10 !important;
+    }
 
-/* ── Gutters (line numbers column) ── */
-.CodeMirror-gutters {
-  background: #111318 !important;
-  border-right: 1px solid #252932 !important;
-  color: #374151 !important;
-  min-width: 48px;
-}
-.CodeMirror-gutter,
-.CodeMirror-gutter-wrapper {
-  background: #111318 !important;
-}
-.CodeMirror-linenumber {
-  color: #374151 !important;
-  padding: 0 10px 0 6px !important;
-  font-size: 11px !important;
-  min-width: 30px;
-}
+    /* ── Explicit CM element styles ── */
+    .CodeMirror {
+      flex: 1;
+      height: 100% !important;
+      color: #e2e8f0 !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 13.5px !important;
+      line-height: 1.7 !important;
+      padding: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      background: #0a0c10 !important;
+    }
 
-/* ── Cursor & selection ── */
-.CodeMirror-cursor {
-  border-left: 2px solid #00e5b0 !important;
-}
-.CodeMirror-selected,
-.CodeMirror-focused .CodeMirror-selected {
-  background: rgba(0,229,176,0.18) !important;
-}
-.CodeMirror-selectionBackground {
-  background: rgba(0,229,176,0.18) !important;
-}
+    .CodeMirror-scroll {
+      background: #0a0c10 !important;
+      padding-bottom: 30px;
+    }
 
-/* ── Active line ── */
-.CodeMirror-activeline-background {
-  background: rgba(255,255,255,0.025) !important;
-}
-.CodeMirror-activeline .CodeMirror-gutter-background,
-.CodeMirror-activeline-gutter .CodeMirror-gutter-background {
-  background: rgba(0,229,176,0.04) !important;
-}
+    .CodeMirror-lines {
+      padding: 20px 0 !important;
+      background: #0a0c10 !important;
+    }
 
-/* ── Matching brackets ── */
-.CodeMirror-matchingbracket {
-  color: #00e5b0 !important;
-  text-decoration: underline;
-  font-weight: bold;
-  background: rgba(0,229,176,0.12) !important;
-}
+    .CodeMirror pre.CodeMirror-line,
+    .CodeMirror pre.CodeMirror-line-like {
+      background: transparent !important;
+      font-family: 'JetBrains Mono', monospace !important;
+    }
 
-/* ── Scrollbars ── */
-.CodeMirror-vscrollbar,
-.CodeMirror-hscrollbar {
-  background: #0a0c10 !important;
-}
-.CodeMirror-vscrollbar::-webkit-scrollbar,
-.CodeMirror-hscrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-.CodeMirror-vscrollbar::-webkit-scrollbar-track,
-.CodeMirror-hscrollbar::-webkit-scrollbar-track { background: transparent; }
-.CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
-.CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
-  background: #252932;
-  border-radius: 3px;
-}
+    /* ── Gutters (line numbers column) ── */
+    .CodeMirror-gutters {
+      background: #111318 !important;
+      border-right: 1px solid #252932 !important;
+      color: #374151 !important;
+      min-width: 48px;
+    }
 
-/* ── Token colours — Dracula palette ── */
-.cm-s-dracula .cm-keyword,
-.cm-keyword    { color: #ff79c6 !important; font-weight: 600 !important; }
+    .CodeMirror-gutter,
+    .CodeMirror-gutter-wrapper {
+      background: #111318 !important;
+    }
 
-.cm-s-dracula .cm-def,
-.cm-def        { color: #50fa7b !important; }
+    .CodeMirror-linenumber {
+      color: #374151 !important;
+      padding: 0 10px 0 6px !important;
+      font-size: 11px !important;
+      min-width: 30px;
+    }
 
-.cm-s-dracula .cm-variable,
-.cm-variable   { color: #f8f8f2 !important; }
+    /* ── Cursor & selection ── */
+    .CodeMirror-cursor {
+      border-left: 2px solid #00e5b0 !important;
+    }
 
-.cm-s-dracula .cm-variable-2,
-.cm-variable-2 { color: #8be9fd !important; }
+    .CodeMirror-selected,
+    .CodeMirror-focused .CodeMirror-selected {
+      background: rgba(0, 229, 176, 0.18) !important;
+    }
 
-.cm-s-dracula .cm-variable-3,
-.cm-s-dracula .cm-type,
-.cm-variable-3,
-.cm-type       { color: #ffb86c !important; }
+    .CodeMirror-selectionBackground {
+      background: rgba(0, 229, 176, 0.18) !important;
+    }
 
-.cm-s-dracula .cm-property,
-.cm-property   { color: #66d9e8 !important; }
+    /* ── Active line ── */
+    .CodeMirror-activeline-background {
+      background: rgba(255, 255, 255, 0.025) !important;
+    }
 
-.cm-s-dracula .cm-operator,
-.cm-operator   { color: #ff79c6 !important; }
+    .CodeMirror-activeline .CodeMirror-gutter-background,
+    .CodeMirror-activeline-gutter .CodeMirror-gutter-background {
+      background: rgba(0, 229, 176, 0.04) !important;
+    }
 
-.cm-s-dracula .cm-number,
-.cm-number     { color: #bd93f9 !important; }
+    /* ── Matching brackets ── */
+    .CodeMirror-matchingbracket {
+      color: #00e5b0 !important;
+      text-decoration: underline;
+      font-weight: bold;
+      background: rgba(0, 229, 176, 0.12) !important;
+    }
 
-.cm-s-dracula .cm-string,
-.cm-string     { color: #f1fa8c !important; }
+    /* ── Scrollbars ── */
+    .CodeMirror-vscrollbar,
+    .CodeMirror-hscrollbar {
+      background: #0a0c10 !important;
+    }
 
-.cm-s-dracula .cm-string-2,
-.cm-string-2   { color: #f1fa8c !important; }
+    .CodeMirror-vscrollbar::-webkit-scrollbar,
+    .CodeMirror-hscrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
 
-.cm-s-dracula .cm-comment,
-.cm-comment    { color: #6272a4 !important; font-style: italic !important; }
+    .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+    .CodeMirror-hscrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
 
-.cm-s-dracula .cm-atom,
-.cm-atom       { color: #bd93f9 !important; }
+    .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+    .CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+      background: #252932;
+      border-radius: 3px;
+    }
 
-.cm-s-dracula .cm-builtin,
-.cm-builtin    { color: #8be9fd !important; font-weight: 600 !important; }
+    /* ── Token colours — Dracula palette ── */
+    .cm-s-dracula .cm-keyword,
+    .cm-keyword {
+      color: #ff79c6 !important;
+      font-weight: 600 !important;
+    }
 
-.cm-s-dracula .cm-tag,
-.cm-tag        { color: #ff79c6 !important; }
+    .cm-s-dracula .cm-def,
+    .cm-def {
+      color: #50fa7b !important;
+    }
 
-.cm-s-dracula .cm-attribute,
-.cm-attribute  { color: #50fa7b !important; }
+    .cm-s-dracula .cm-variable,
+    .cm-variable {
+      color: #f8f8f2 !important;
+    }
 
-.cm-s-dracula .cm-header,
-.cm-header     { color: #bd93f9 !important; font-weight: bold !important; }
+    .cm-s-dracula .cm-variable-2,
+    .cm-variable-2 {
+      color: #8be9fd !important;
+    }
 
-.cm-s-dracula .cm-link,
-.cm-link       { color: #8be9fd !important; text-decoration: underline; }
+    .cm-s-dracula .cm-variable-3,
+    .cm-s-dracula .cm-type,
+    .cm-variable-3,
+    .cm-type {
+      color: #ffb86c !important;
+    }
 
-.cm-s-dracula .cm-error,
-.cm-error      { background: rgba(255,85,85,0.15) !important; color: #ff5555 !important; }
+    .cm-s-dracula .cm-property,
+    .cm-property {
+      color: #66d9e8 !important;
+    }
 
-.cm-s-dracula .cm-meta,
-.cm-meta       { color: #f8f8f2 !important; }
+    .cm-s-dracula .cm-operator,
+    .cm-operator {
+      color: #ff79c6 !important;
+    }
 
-/* ── Dracula theme specific background override ── */
-.cm-s-dracula.CodeMirror,
-.cm-s-dracula .CodeMirror-gutters,
-.cm-s-dracula .CodeMirror-cursor {
-  background: #0a0c10 !important;
-  border-color: #252932 !important;
-}
-</style>
+    .cm-s-dracula .cm-number,
+    .cm-number {
+      color: #bd93f9 !important;
+    }
+
+    .cm-s-dracula .cm-string,
+    .cm-string {
+      color: #f1fa8c !important;
+    }
+
+    .cm-s-dracula .cm-string-2,
+    .cm-string-2 {
+      color: #f1fa8c !important;
+    }
+
+    .cm-s-dracula .cm-comment,
+    .cm-comment {
+      color: #6272a4 !important;
+      font-style: italic !important;
+    }
+
+    .cm-s-dracula .cm-atom,
+    .cm-atom {
+      color: #bd93f9 !important;
+    }
+
+    .cm-s-dracula .cm-builtin,
+    .cm-builtin {
+      color: #8be9fd !important;
+      font-weight: 600 !important;
+    }
+
+    .cm-s-dracula .cm-tag,
+    .cm-tag {
+      color: #ff79c6 !important;
+    }
+
+    .cm-s-dracula .cm-attribute,
+    .cm-attribute {
+      color: #50fa7b !important;
+    }
+
+    .cm-s-dracula .cm-header,
+    .cm-header {
+      color: #bd93f9 !important;
+      font-weight: bold !important;
+    }
+
+    .cm-s-dracula .cm-link,
+    .cm-link {
+      color: #8be9fd !important;
+      text-decoration: underline;
+    }
+
+    .cm-s-dracula .cm-error,
+    .cm-error {
+      background: rgba(255, 85, 85, 0.15) !important;
+      color: #ff5555 !important;
+    }
+
+    .cm-s-dracula .cm-meta,
+    .cm-meta {
+      color: #f8f8f2 !important;
+    }
+
+    /* ── Dracula theme specific background override ── */
+    .cm-s-dracula.CodeMirror,
+    .cm-s-dracula .CodeMirror-gutters,
+    .cm-s-dracula .CodeMirror-cursor {
+      background: #0a0c10 !important;
+      border-color: #252932 !important;
+    }
+  </style>
 
 </head>
+
 <body>
 
-<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
-<div id="header">
-  <div class="logo">
-    <div class="logo-img-wrap">
-      <img src="{{ url_for('static', filename='stembot_coder.png') }}"
-           style="width:38px;height:38px;object-fit:contain;border-radius:10px;"
-           alt="STEMbotix"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-      <div class="logo-icon" style="display:none;">🤖</div>
-    </div>
-    <div>
-      <div class="logo-text">STEM<span>botix</span> Lab</div>
-      <div class="logo-sub">Programming Lab</div>
-    </div>
-    <div class="bot-typing-hint">
-      <div class="typing-dots"><span></span><span></span><span></span></div>
-      coding…
-    </div>
-  </div>
-
-  <div class="header-center">
-    <button class="lang-btn active" data-lang="python" onclick="setLanguage('python')">
-      <span class="lang-dot"></span>Python
-    </button>
-    <button class="lang-btn" data-lang="javascript" onclick="setLanguage('javascript')">
-      <span class="lang-dot"></span>JS
-    </button>
-    <button class="lang-btn" data-lang="c" onclick="setLanguage('c')">
-      <span class="lang-dot"></span>C
-    </button>
-    <button class="lang-btn" data-lang="cpp" onclick="setLanguage('cpp')">
-      <span class="lang-dot"></span>C++
-    </button>
-  </div>
-
-  <div class="header-actions">
-    <div class="status-pill">
-      <div class="status-dot" id="status-dot"></div>
-      <span style="font-size:10px;font-family:var(--font-code);" id="status-label">Connected</span>
-    </div>
-    <button class="btn" onclick="toggleChat()">💬 AI Chat</button>
-  </div>
-</div>
-
-<!-- ═══════════════════════════ APP ═══════════════════════════ -->
-<div id="app">
-
-  <!-- ── Sidebar ── -->
-  <div id="sidebar">
-    <!-- STEMbot mascot animation -->
-    <div class="bot-side-panel">
-      <div class="bot-canvas-wrap">
-        <canvas id="bot-canvas" width="90" height="90"></canvas>
+  <!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+  <div id="header">
+    <div class="logo">
+      <div class="logo-img-wrap">
+        <img src="{{ url_for('static', filename='stembot_coder.png') }}"
+          style="width:38px;height:38px;object-fit:contain;border-radius:10px;" alt="STEMbotix"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="logo-icon" style="display:none;">🤖</div>
       </div>
-      <div class="bot-code-ticker" id="bot-ticker"></div>
-    </div>
-
-    <!-- AI Engine (auto-selected by backend) -->
-    <div class="sidebar-section">
-      <div class="sidebar-label">AI Engine</div>
-      <div class="ai-status-card">
-        <span class="ai-status-icon">🤖</span>
-        <div class="ai-status-info">
-          <div class="ai-status-name" id="current-model-name">STEMbot Coder</div>
-          <div class="ai-status-desc" id="current-model-desc">Ready to build &amp; debug</div>
-        </div>
-        <div class="ai-online-dot"></div>
+      <div>
+        <div class="logo-text">STEM<span>botix</span> Lab</div>
+        <div class="logo-sub">Programming Lab</div>
+      </div>
+      <div class="bot-typing-hint">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+        coding…
       </div>
     </div>
 
-    <!-- Snippets Library -->
-    <div class="sidebar-section">
-      <div class="sidebar-label">Quick Start</div>
-
-      <div class="snippet-item" onclick="loadSnippet('hello')"><span class="si">👋</span>Hello World</div>
-      <div class="snippet-item" onclick="loadSnippet('fibonacci')"><span class="si">🔢</span>Fibonacci</div>
-      <div class="snippet-item" onclick="loadSnippet('sort')"><span class="si">📊</span>Sorting Algorithm</div>
-      <div class="snippet-item" onclick="loadSnippet('file_io')"><span class="si">📁</span>File I/O</div>
-      <div class="snippet-item" onclick="loadSnippet('class')"><span class="si">🧱</span>OOP Class</div>
-      <div class="snippet-item" onclick="loadSnippet('api')"><span class="si">🌐</span>API Request</div>
-      <div class="snippet-item" onclick="loadSnippet('matrix')"><span class="si">🔲</span>Matrix Ops</div>
-      <div class="snippet-item" onclick="loadSnippet('recursion')"><span class="si">🔄</span>Recursion</div>
+    <div class="header-center">
+      <button class="lang-btn active" data-lang="python" onclick="setLanguage('python')">
+        <span class="lang-dot"></span>Python
+      </button>
+      <button class="lang-btn" data-lang="javascript" onclick="setLanguage('javascript')">
+        <span class="lang-dot"></span>JS
+      </button>
+      <button class="lang-btn" data-lang="c" onclick="setLanguage('c')">
+        <span class="lang-dot"></span>C
+      </button>
+      <button class="lang-btn" data-lang="cpp" onclick="setLanguage('cpp')">
+        <span class="lang-dot"></span>C++
+      </button>
     </div>
 
-    <!-- Libraries -->
-    <div class="sidebar-section">
-      <div class="sidebar-label" id="libs-label">Popular Libraries</div>
-      <div id="libs-list" style="font-size:10px;color:var(--text-muted);line-height:2;padding:0 2px;"></div>
-    </div>
-
-    <!-- Session Stats -->
-    <div class="sidebar-section" style="margin-top:auto;">
-      <div class="sidebar-label">Session</div>
-      <div class="stat-row">Runs <span class="stat-val" id="stat-runs" style="color:var(--accent)">0</span></div>
-      <div class="stat-row">AI Calls <span class="stat-val" id="stat-ai" style="color:var(--accent2)">0</span></div>
-      <div class="stat-row">Agentic <span class="stat-val" id="stat-agentic" style="color:var(--level4)">0</span></div>
+    <div class="header-actions">
+      <div class="status-pill">
+        <div class="status-dot" id="status-dot"></div>
+        <span style="font-size:10px;font-family:var(--font-code);" id="status-label">Connected</span>
+      </div>
+      <button class="btn" onclick="toggleChat()">💬 AI Chat</button>
     </div>
   </div>
 
-  <!-- ── Main ── -->
-  <div id="main">
-    <!-- Toolbar -->
-    <div id="toolbar">
-      <button class="btn btn-run" onclick="runCode()">▶ Run</button>
-      <button class="btn btn-agentic" onclick="showAgentBar()">🤖 STEMbot Coder</button>
-      <button class="btn btn-fix" onclick="fixCode()">🔧 Fix Code</button>
-      <button class="btn btn-explain" onclick="explainCode()">📖 Explain</button>
-      <button class="btn" onclick="clearCode()">🗑 Clear</button>
-      <button class="btn" onclick="copyCode()">📋 Copy</button>
-      <div class="spacer"></div>
-      <span class="kbd-hint">Ctrl+↵ Run</span>
-    </div>
+  <!-- ═══════════════════════════ APP ═══════════════════════════ -->
+  <div id="app">
 
-    <!-- Work area -->
-    <div id="work-area">
-      <!-- Editor -->
-      <div id="editor-pane">
-        <div class="pane-header">
-          <div class="pane-title">
-            <div class="pane-title-dot"></div>
-            <span id="editor-lang-title">main.py</span>
-          </div>
-          <div style="font-size:10px;color:var(--text-dim)" id="line-count">0 lines</div>
+    <!-- ── Sidebar ── -->
+    <div id="sidebar">
+      <!-- STEMbot mascot animation -->
+      <div class="bot-side-panel">
+        <div class="bot-canvas-wrap">
+          <canvas id="bot-canvas" width="90" height="90"></canvas>
         </div>
-        <div id="code-editor-wrap" style="flex:1;overflow:hidden;position:relative;">
-          <textarea id="code-editor" spellcheck="false"
-            placeholder="# Write your code here, or use 🤖 STEMbot Coder to generate it..."></textarea>
-        </div>
-        <div class="loader-overlay" id="editor-loader" style="display:none;">
-          <div class="loader-bot-wrap">
-            <img src="{{ url_for('static', filename='stembot_coder.png') }}" alt="Loading"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-            <div class="loader-bot-fallback" style="display:none;"></div>
+        <div class="bot-code-ticker" id="bot-ticker"></div>
+      </div>
+
+      <!-- AI Engine (auto-selected by backend) -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">AI Engine</div>
+        <div class="ai-status-card">
+          <span class="ai-status-icon">🤖</span>
+          <div class="ai-status-info">
+            <div class="ai-status-name" id="current-model-name">STEMbot Coder</div>
+            <div class="ai-status-desc" id="current-model-desc">Ready to build &amp; debug</div>
           </div>
-          <div class="loader-text" id="loader-text">STEMbot Coder is generating…</div>
+          <div class="ai-online-dot"></div>
         </div>
       </div>
 
-      <!-- Output -->
-      <div id="output-pane">
-        <div id="output-tabs">
-          <div class="out-tab active" data-tab="output"   onclick="switchTab('output')">Output</div>
-          <div class="out-tab"        data-tab="terminal" onclick="switchTab('terminal')">⚡ Terminal</div>
-          <div class="out-tab"        data-tab="agentic"  onclick="switchTab('agentic')">🤖 AI Log</div>
-          <div class="out-tab"        data-tab="explain"  onclick="switchTab('explain')">Explain</div>
-        </div>
+      <!-- Snippets Library -->
+      <div class="sidebar-section">
+        <div class="sidebar-label">Quick Start</div>
 
-        <!-- Output / Agentic / Explain content -->
-        <div id="output-content">
-          <div class="empty-state">
-            <img src="{{ url_for('static', filename='stembot_coder.png') }}"
-                 class="empty-bot"
-                 style="width:68px;height:68px;object-fit:contain;opacity:0.18;"
-                 alt="" onerror="this.style.display='none';">
-            <div class="empty-icon">⚡</div>
-            <div class="empty-text">Run code or use 🤖 STEMbot Coder<br>to see output here</div>
-            <div style="font-size:10px;color:var(--text-dim);font-family:var(--font-code);">Ctrl+Enter · Tab · ▶ Run</div>
-          </div>
-        </div>
-
-        <!-- Interactive Terminal (shown when Terminal tab active) -->
-        <div id="terminal-pane">
-          <div class="term-controls">
-            <button class="term-ctrl-btn" onclick="termRun()" id="term-run-btn">▶ Run in Terminal</button>
-            <button class="term-ctrl-btn stop" onclick="termKill()">■ Stop</button>
-            <button class="term-ctrl-btn clear" onclick="termClear()">✕ Clear</button>
-            <span class="term-status stopped" id="term-status">● Stopped</span>
-          </div>
-          <div id="terminal-screen"></div>
-          <div id="terminal-input-row">
-            <span class="term-prompt">›</span>
-            <input type="text" id="terminal-user-input"
-              placeholder="Type your input and press Enter…"
-              onkeydown="termKey(event)" autocomplete="off" spellcheck="false" disabled/>
-            <button class="term-send-btn" id="term-send-btn" onclick="termSend()" disabled>Enter</button>
-          </div>
-        </div>
-
-      </div><!-- /output-pane -->
-    </div>
-
-    <!-- Agentic Bar -->
-    <div id="agentic-bar" style="display:none;">
-      <img src="{{ url_for('static', filename='stembot_coder.png') }}"
-           class="agentic-bot-icon" alt="STEMbot"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
-      <span class="agentic-bot-fallback">🤖</span>
-      <input type="text" id="agentic-input"
-        placeholder="Describe what STEMbot Coder should build… e.g. 'binary search tree with insert and delete'"
-        onkeydown="agentKey(event)"/>
-      <button class="btn btn-agentic" onclick="runAgentic()">Generate & Run</button>
-      <button class="btn" onclick="generateOnly()">Generate Only</button>
-      <button class="btn" onclick="hideAgentBar()" style="padding:6px 10px;">✕</button>
-    </div>
-  </div>
-
-  <!-- Chat Panel -->
-  <div id="chat-panel">
-    <div class="chat-header">
-      <div class="chat-header-bot">
-        <img src="{{ url_for('static', filename='stembot_coder.png') }}" alt="STEMbot"
-             style="width:22px;height:22px;object-fit:contain;border-radius:5px;"
-             onerror="this.style.display='none';">
-        STEMbot Coder
+        <div class="snippet-item" onclick="loadSnippet('hello')"><span class="si">👋</span>Hello World</div>
+        <div class="snippet-item" onclick="loadSnippet('fibonacci')"><span class="si">🔢</span>Fibonacci</div>
+        <div class="snippet-item" onclick="loadSnippet('sort')"><span class="si">📊</span>Sorting Algorithm</div>
+        <div class="snippet-item" onclick="loadSnippet('file_io')"><span class="si">📁</span>File I/O</div>
+        <div class="snippet-item" onclick="loadSnippet('class')"><span class="si">🧱</span>OOP Class</div>
+        <div class="snippet-item" onclick="loadSnippet('api')"><span class="si">🌐</span>API Request</div>
+        <div class="snippet-item" onclick="loadSnippet('matrix')"><span class="si">🔲</span>Matrix Ops</div>
+        <div class="snippet-item" onclick="loadSnippet('recursion')"><span class="si">🔄</span>Recursion</div>
       </div>
-      <button class="btn" onclick="toggleChat()" style="padding:2px 8px;font-size:10px;">✕</button>
+
+      <!-- Libraries -->
+      <div class="sidebar-section">
+        <div class="sidebar-label" id="libs-label">Popular Libraries</div>
+        <div id="libs-list" style="font-size:10px;color:var(--text-muted);line-height:2;padding:0 2px;"></div>
+      </div>
+
+      <!-- Session Stats -->
+      <div class="sidebar-section" style="margin-top:auto;">
+        <div class="sidebar-label">Session</div>
+        <div class="stat-row">Runs <span class="stat-val" id="stat-runs" style="color:var(--accent)">0</span></div>
+        <div class="stat-row">AI Calls <span class="stat-val" id="stat-ai" style="color:var(--accent2)">0</span></div>
+        <div class="stat-row">Agentic <span class="stat-val" id="stat-agentic" style="color:var(--level4)">0</span>
+        </div>
+      </div>
     </div>
-    <div id="chat-messages">
-      <div class="chat-msg ai">👋 Hi! I'm STEMbot Coder — your AI programming buddy. Ask me anything about code!</div>
+
+    <!-- ── Main ── -->
+    <div id="main">
+      <!-- Toolbar -->
+      <div id="toolbar">
+        <button class="btn btn-run" onclick="runCode()">▶ Run</button>
+        <button class="btn btn-agentic" onclick="showAgentBar()">🤖 STEMbot Coder</button>
+        <button class="btn btn-fix" onclick="fixCode()">🔧 Fix Code</button>
+        <button class="btn btn-explain" onclick="explainCode()">📖 Explain</button>
+        <button class="btn" onclick="clearCode()">🗑 Clear</button>
+        <button class="btn" onclick="copyCode()">📋 Copy</button>
+        <div class="spacer"></div>
+        <span class="kbd-hint">Ctrl+↵ Run</span>
+      </div>
+
+      <!-- Work area -->
+      <div id="work-area">
+        <!-- Editor -->
+        <div id="editor-pane">
+          <div class="pane-header">
+            <div class="pane-title">
+              <div class="pane-title-dot"></div>
+              <span id="editor-lang-title">main.py</span>
+            </div>
+            <div style="font-size:10px;color:var(--text-dim)" id="line-count">0 lines</div>
+          </div>
+          <div id="code-editor-wrap" style="flex:1;overflow:hidden;position:relative;">
+            <textarea id="code-editor" spellcheck="false"
+              placeholder="# Write your code here, or use 🤖 STEMbot Coder to generate it..."></textarea>
+          </div>
+          <div class="loader-overlay" id="editor-loader" style="display:none;">
+            <div class="loader-bot-wrap">
+              <img src="{{ url_for('static', filename='stembot_coder.png') }}" alt="Loading"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+              <div class="loader-bot-fallback" style="display:none;"></div>
+            </div>
+            <div class="loader-text" id="loader-text">STEMbot Coder is generating…</div>
+          </div>
+        </div>
+
+        <!-- Output -->
+        <div id="output-pane">
+          <div id="output-tabs">
+            <div class="out-tab active" data-tab="output" onclick="switchTab('output')">Output</div>
+            <div class="out-tab" data-tab="terminal" onclick="switchTab('terminal')">⚡ Terminal</div>
+            <div class="out-tab" data-tab="agentic" onclick="switchTab('agentic')">🤖 AI Log</div>
+            <div class="out-tab" data-tab="explain" onclick="switchTab('explain')">Explain</div>
+          </div>
+
+          <!-- Output / Agentic / Explain content -->
+          <div id="output-content">
+            <div class="empty-state">
+              <img src="{{ url_for('static', filename='stembot_coder.png') }}" class="empty-bot"
+                style="width:68px;height:68px;object-fit:contain;opacity:0.18;" alt=""
+                onerror="this.style.display='none';">
+              <div class="empty-icon">⚡</div>
+              <div class="empty-text">Run code or use 🤖 STEMbot Coder<br>to see output here</div>
+              <div style="font-size:10px;color:var(--text-dim);font-family:var(--font-code);">Ctrl+Enter · Tab · ▶ Run
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Terminal (shown when Terminal tab active) -->
+          <div id="terminal-pane">
+            <div class="term-controls">
+              <button class="term-ctrl-btn" onclick="termRun()" id="term-run-btn">▶ Run in Terminal</button>
+              <button class="term-ctrl-btn stop" onclick="termKill()">■ Stop</button>
+              <button class="term-ctrl-btn clear" onclick="termClear()">✕ Clear</button>
+              <span class="term-status stopped" id="term-status">● Stopped</span>
+            </div>
+            <div id="terminal-screen"></div>
+            <div id="terminal-input-row">
+              <span class="term-prompt">›</span>
+              <input type="text" id="terminal-user-input" placeholder="Type your input and press Enter…"
+                onkeydown="termKey(event)" autocomplete="off" spellcheck="false" disabled />
+              <button class="term-send-btn" id="term-send-btn" onclick="termSend()" disabled>Enter</button>
+            </div>
+          </div>
+
+        </div><!-- /output-pane -->
+      </div>
+
+      <!-- Agentic Bar -->
+      <div id="agentic-bar" style="display:none;">
+        <img src="{{ url_for('static', filename='stembot_coder.png') }}" class="agentic-bot-icon" alt="STEMbot"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+        <span class="agentic-bot-fallback">🤖</span>
+        <input type="text" id="agentic-input"
+          placeholder="Describe what STEMbot Coder should build… e.g. 'binary search tree with insert and delete'"
+          onkeydown="agentKey(event)" />
+        <button class="btn btn-agentic" onclick="runAgentic()">Generate & Run</button>
+        <button class="btn" onclick="generateOnly()">Generate Only</button>
+        <button class="btn" onclick="hideAgentBar()" style="padding:6px 10px;">✕</button>
+      </div>
     </div>
-    <div class="chat-input-row">
-      <input type="text" id="chat-input" placeholder="Ask a question..."
-        onkeydown="chatKey(event)"/>
-      <button class="btn btn-primary" onclick="sendChat()" style="padding:6px 12px;">↑</button>
+
+    <!-- Chat Panel -->
+    <div id="chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-bot">
+          <img src="{{ url_for('static', filename='stembot_coder.png') }}" alt="STEMbot"
+            style="width:22px;height:22px;object-fit:contain;border-radius:5px;" onerror="this.style.display='none';">
+          STEMbot Coder
+        </div>
+        <button class="btn" onclick="toggleChat()" style="padding:2px 8px;font-size:10px;">✕</button>
+      </div>
+      <div id="chat-messages">
+        <div class="chat-msg ai">👋 Hi! I'm STEMbot Coder — your AI programming buddy. Ask me anything about code!</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Ask a question..." onkeydown="chatKey(event)" />
+        <button class="btn btn-primary" onclick="sendChat()" style="padding:6px 12px;">↑</button>
+      </div>
     </div>
+
   </div>
 
-</div>
+  <!-- Toast container -->
+  <div id="toast-container"></div>
 
-<!-- Toast container -->
-<div id="toast-container"></div>
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    //  STEMbotix Programming Lab — Frontend Logic
+    // ═══════════════════════════════════════════════════════════
 
-<script>
-// ═══════════════════════════════════════════════════════════
-//  STEMbotix Programming Lab — Frontend Logic
-// ═══════════════════════════════════════════════════════════
+    // Detect backend API URL based on environment (matches app.js pattern)
+    function getLabAPI() {
+      if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') {
+        return 'http://localhost:8123';
+      }
+      // Production: use relative URL — Flask proxy forwards /api/* → backend:8123/api/*
+      return '';  // empty string so paths like '/api/...' work as relative URLs
+    }
+    const API = getLabAPI();
 
-const API = 'http://localhost:8123';  // same-origin Flask
+    let currentLang = 'python';
+    let stats = { runs: 0, ai: 0, agentic: 0 };
+    let chatHistory = [];
+    let streamBuffer = '';
 
-let currentLang = 'python';
-let stats = { runs: 0, ai: 0, agentic: 0 };
-let chatHistory = [];
-let streamBuffer = '';
+    const EXTS = { python: 'main.py', javascript: 'main.js', c: 'main.c', cpp: 'main.cpp' };
 
-const EXTS = { python: 'main.py', javascript: 'main.js', c: 'main.c', cpp: 'main.cpp' };
+    // Fix: TERMINAL_EMPTY_HTML was undefined in original
+    const TERMINAL_EMPTY_HTML = '<span class="term-line sys" id="terminal-empty">STEMbotix Terminal — press ▶ Run in Terminal to start</span>';
 
-// Fix: TERMINAL_EMPTY_HTML was undefined in original
-const TERMINAL_EMPTY_HTML = '<span class="term-line sys" id="terminal-empty">STEMbotix Terminal — press ▶ Run in Terminal to start</span>';
-
-{% raw %}
-// ── Snippets ────────────────────────────────────────────────
-const SNIPPETS = {
-  python: {
-    hello: `# Hello World in Python
+    {% raw %}
+    // ── Snippets ────────────────────────────────────────────────
+    const SNIPPETS = {
+      python: {
+        hello: `# Hello World in Python
 print("Hello, STEMbotix! 🚀")
 name = input("Enter your name: ")
 print(f"Welcome to the Lab, {name}!")`,
-    fibonacci: `# Fibonacci Sequence
+        fibonacci: `# Fibonacci Sequence
 def fibonacci(n):
     """Generate Fibonacci sequence up to n terms."""
     a, b = 0, 1
@@ -1639,7 +2340,7 @@ n = 10
 fib = fibonacci(n)
 print(f"Fibonacci ({n} terms): {fib}")
 print(f"Sum: {sum(fib)}")`,
-    sort: `# Sorting Algorithms Comparison
+        sort: `# Sorting Algorithms Comparison
 import time, random
 
 def bubble_sort(arr):
@@ -1663,7 +2364,7 @@ data = random.sample(range(1000), 20)
 print("Original:", data)
 print("Bubble:  ", bubble_sort(data[:]))
 print("Quick:   ", quick_sort(data[:]))`,
-    file_io: `# File I/O Operations
+        file_io: `# File I/O Operations
 import os, json
 
 # Write JSON data
@@ -1677,7 +2378,7 @@ with open("/tmp/lab_data.json", "r") as f:
     loaded = json.load(f)
 print("✓ File read:", loaded)
 print("Features:", ", ".join(loaded["features"]))`,
-    class: `# Object-Oriented Programming
+        class: `# Object-Oriented Programming
 class Shape:
     def __init__(self, color="white"):
         self.color = color
@@ -1700,7 +2401,7 @@ shapes = [Circle(5), Circle(3, "green"), Rectangle(4, 6), Rectangle(10, 2, "yell
 for s in shapes:
     print(s)
 print(f"Total area: {sum(s.area() for s in shapes):.2f}")`,
-    api: `# HTTP API Request
+        api: `# HTTP API Request
 import urllib.request, json
 
 url = "https://jsonplaceholder.typicode.com/posts/1"
@@ -1712,7 +2413,7 @@ try:
     print(f"  Body:  {data['body'][:80]}...")
 except Exception as e:
     print(f"✗ Error: {e}")`,
-    matrix: `# Matrix Operations (without numpy)
+        matrix: `# Matrix Operations (without numpy)
 def mat_mul(A, B):
     rows_A, cols_A = len(A), len(A[0])
     cols_B = len(B[0])
@@ -1729,7 +2430,7 @@ C = mat_mul(A, B)
 print("A × B =")
 for row in C:
     print(" ", row)`,
-    recursion: `# Recursive Algorithms
+        recursion: `# Recursive Algorithms
 def factorial(n):
     return 1 if n <= 1 else n * factorial(n-1)
 
@@ -1750,9 +2451,9 @@ def flatten(lst):
 print("Factorials:", [factorial(i) for i in range(1,10)])
 print("2^10 =", power(2,10))
 print("Flatten:", flatten([1,[2,[3,4]],[5,6,[7,[8,9]]]]))`
-  },
-  javascript: {
-    hello: `// Hello World in JavaScript (Node.js)
+      },
+      javascript: {
+        hello: `// Hello World in JavaScript (Node.js)
 console.log("Hello, STEMbotix! 🚀");
 const readline = require('readline');
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -1760,7 +2461,7 @@ rl.question("Enter your name: ", (name) => {
   console.log(\`Welcome to the Lab, \${name}!\`);
   rl.close();
 });`,
-    fibonacci: `// Fibonacci with memoization
+        fibonacci: `// Fibonacci with memoization
 function fibonacci(n, memo = {}) {
   if (n in memo) return memo[n];
   if (n <= 1) return n;
@@ -1771,7 +2472,7 @@ function fibonacci(n, memo = {}) {
 const results = Array.from({length: 15}, (_, i) => fibonacci(i));
 console.log("Fibonacci:", results);
 console.log("Sum:", results.reduce((a, b) => a + b, 0));`,
-    sort: `// Sorting Algorithms
+        sort: `// Sorting Algorithms
 const arr = Array.from({length:10}, () => Math.floor(Math.random()*100));
 console.log("Original:", arr);
 
@@ -1791,7 +2492,7 @@ const quickSort = a => a.length<=1?a:[
 
 console.log("Bubble:", bubbleSort(arr));
 console.log("Quick:", quickSort(arr));`,
-    class: `// ES6 Classes & Inheritance
+        class: `// ES6 Classes & Inheritance
 class Animal {
   constructor(name, sound) { this.name=name; this.sound=sound; }
   speak() { return \`\${this.name} says \${this.sound}!\`; }
@@ -1807,7 +2508,7 @@ const dog = new Dog("Rex");
 dog.learn("sit").learn("shake").learn("roll over");
 console.log(dog.speak());
 console.log(dog.showTricks());`,
-    recursion: `// Recursive Functions in JS
+        recursion: `// Recursive Functions in JS
 const factorial = n => n <= 1 ? 1 : n * factorial(n-1);
 const flatten = arr => arr.reduce((acc, val) =>
   Array.isArray(val) ? acc.concat(flatten(val)) : [...acc, val], []);
@@ -1821,7 +2522,7 @@ const clone = deepClone(obj);
 clone.b.c = 999;
 console.log("Original:", JSON.stringify(obj));
 console.log("Clone:   ", JSON.stringify(clone));`,
-    file_io: `// Node.js File System
+        file_io: `// Node.js File System
 const fs = require('fs');
 const path = '/tmp/stembotix_test.json';
 const data = { lab: "STEMbotix", langs: ["Python","JS","C","C++"], version: 2 };
@@ -1834,7 +2535,7 @@ console.log("✓ Read back:", loaded);
 console.log("Languages:", loaded.langs.join(" | "));
 fs.unlinkSync(path);
 console.log("✓ File cleaned up");`,
-    api: `// HTTP GET Request in Node.js
+        api: `// HTTP GET Request in Node.js
 const https = require('https');
 const url = 'https://jsonplaceholder.typicode.com/todos/1';
 
@@ -1849,7 +2550,7 @@ https.get(url, res => {
     console.log("  Completed: ", json.completed);
   });
 }).on('error', err => console.error("✗ Error:", err.message));`,
-    matrix: `// Matrix Operations in JS
+        matrix: `// Matrix Operations in JS
 const matMul = (A, B) => A.map(row =>
   B[0].map((_, j) => row.reduce((sum, _, k) => sum + A[row.indexOf(row[k])][k] * B[k][j], 0))
 );
@@ -1867,9 +2568,9 @@ const C = matMulCorrect(A, B);
 console.log("A =", JSON.stringify(A));
 console.log("B =", JSON.stringify(B));
 console.log("A×B =", JSON.stringify(C));`
-  },
-  c: {
-    hello: `#include <stdio.h>
+      },
+      c: {
+        hello: `#include <stdio.h>
 int main() {
     char name[50];
     printf("Hello, STEMbotix! 🚀\\n");
@@ -1878,7 +2579,7 @@ int main() {
     printf("Welcome to the Lab, %s!\\n", name);
     return 0;
 }`,
-    fibonacci: `#include <stdio.h>
+        fibonacci: `#include <stdio.h>
 long long fibonacci(int n) {
     if (n <= 1) return n;
     long long a = 0, b = 1, c;
@@ -1894,7 +2595,7 @@ int main() {
     }
     return 0;
 }`,
-    sort: `#include <stdio.h>
+        sort: `#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -1921,7 +2622,7 @@ int main() {
     printf("\\n");
     return 0;
 }`,
-    class: `#include <stdio.h>
+        class: `#include <stdio.h>
 #include <math.h>
 
 typedef struct { double x, y; } Point;
@@ -1943,7 +2644,7 @@ int main() {
     printf("Distance:       %.4f\\n", point_dist(p1,p2));
     return 0;
 }`,
-    recursion: `#include <stdio.h>
+        recursion: `#include <stdio.h>
 long long factorial(int n) { return n<=1?1:(long long)n*factorial(n-1); }
 long long power(long long b, int e) { return e==0?1:e%2==0?power(b,e/2)*power(b,e/2):b*power(b,e-1); }
 
@@ -1956,7 +2657,7 @@ int main() {
         printf("  2^%2d = %lld\\n", i, power(2,i));
     return 0;
 }`,
-    file_io: `#include <stdio.h>
+        file_io: `#include <stdio.h>
 #include <string.h>
 int main() {
     FILE *f = fopen("/tmp/stembotix.txt", "w");
@@ -1973,7 +2674,7 @@ int main() {
     printf("✓ File removed\\n");
     return 0;
 }`,
-    api: `#include <stdio.h>
+        api: `#include <stdio.h>
 /* Note: Full HTTP requires libcurl (add -lcurl to compile) */
 /* This shows struct/data patterns used in API clients */
 typedef struct { int id; char title[256]; int done; } Todo;
@@ -1993,7 +2694,7 @@ int main() {
     printf("  Completed: %s\\n", data.done ? "true" : "false");
     return 0;
 }`,
-    matrix: `#include <stdio.h>
+        matrix: `#include <stdio.h>
 #define N 3
 void mat_mul(int A[N][N], int B[N][N], int C[N][N]) {
     for(int i=0;i<N;i++) for(int j=0;j<N;j++) {
@@ -2017,9 +2718,9 @@ int main() {
     printf("A×B:\\n"); print_mat(C);
     return 0;
 }`
-  },
-  cpp: {
-    hello: `#include <iostream>
+      },
+      cpp: {
+        hello: `#include <iostream>
 #include <string>
 using namespace std;
 int main() {
@@ -2030,7 +2731,7 @@ int main() {
     cout << "Welcome to the Lab, " << name << "!" << endl;
     return 0;
 }`,
-    fibonacci: `#include <iostream>
+        fibonacci: `#include <iostream>
 #include <vector>
 using namespace std;
 
@@ -2051,7 +2752,7 @@ int main() {
     cout << "Sum: " << sum << endl;
     return 0;
 }`,
-    sort: `#include <iostream>
+        sort: `#include <iostream>
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -2074,7 +2775,7 @@ int main() {
     cout << "STL sort: "; for(auto x:b) cout<<x<<" "; cout<<endl;
     return 0;
 }`,
-    class: `#include <iostream>
+        class: `#include <iostream>
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -2114,7 +2815,7 @@ int main() {
     cout << "Total area: " << total << endl;
     return 0;
 }`,
-    recursion: `#include <iostream>
+        recursion: `#include <iostream>
 using namespace std;
 long long factorial(int n) { return n<=1?1:(long long)n*factorial(n-1); }
 int gcd(int a, int b) { return b==0?a:gcd(b,a%b); }
@@ -2126,7 +2827,7 @@ int main() {
     cout<<"  gcd(100,75) = "<<gcd(100,75)<<endl;
     return 0;
 }`,
-    file_io: `#include <iostream>
+        file_io: `#include <iostream>
 #include <fstream>
 #include <string>
 using namespace std;
@@ -2145,7 +2846,7 @@ int main() {
     cout << "✓ File removed" << endl;
     return 0;
 }`,
-    api: `#include <iostream>
+        api: `#include <iostream>
 #include <map>
 #include <string>
 using namespace std;
@@ -2165,7 +2866,7 @@ int main() {
         cout << "  " << k << ": " << v << endl;
     return 0;
 }`,
-    matrix: `#include <iostream>
+        matrix: `#include <iostream>
 #include <vector>
 using namespace std;
 typedef vector<vector<int>> Matrix;
@@ -2181,504 +2882,504 @@ int main() {
     cout<<"A×B:"<<endl; print(mat_mul(A,B));
     return 0;
 }`
-  }
-};
+      }
+    };
 
-{% endraw %}
-// ═══════════════════════════════════════════════════════════
-//  CODEMIRROR EDITOR SETUP
-// ═══════════════════════════════════════════════════════════
-let cmEditor = null;
-const CM_MODES = {
-  python: 'python',
-  javascript: 'javascript',
-  c: 'text/x-csrc',
-  cpp: 'text/x-c++src'
-};
+    {% endraw %}
+    // ═══════════════════════════════════════════════════════════
+    //  CODEMIRROR EDITOR SETUP
+    // ═══════════════════════════════════════════════════════════
+    let cmEditor = null;
+    const CM_MODES = {
+      python: 'python',
+      javascript: 'javascript',
+      c: 'text/x-csrc',
+      cpp: 'text/x-c++src'
+    };
 
-function initCodeMirror() {
-  const ta = document.getElementById('code-editor');
-  if (!ta || typeof CodeMirror === 'undefined') return;
+    function initCodeMirror() {
+      const ta = document.getElementById('code-editor');
+      if (!ta || typeof CodeMirror === 'undefined') return;
 
-  cmEditor = CodeMirror.fromTextArea(ta, {
-    mode: CM_MODES['python'],
-    theme: 'dracula',
-    lineNumbers: true,
-    matchBrackets: true,
-    autoCloseBrackets: true,
-    styleActiveLine: true,
-    indentUnit: 4,
-    tabSize: 4,
-    indentWithTabs: false,
-    extraKeys: {
-      'Tab': (cm) => cm.execCommand('insertSoftTab'),
-      'Ctrl-Enter': () => termRun(),
-      'Cmd-Enter':  () => termRun(),
-      'Escape':     () => hideAgentBar(),
-    },
-    lineWrapping: false,
-    scrollbarStyle: 'native',
-    viewportMargin: Infinity,
-  });
+      cmEditor = CodeMirror.fromTextArea(ta, {
+        mode: CM_MODES['python'],
+        theme: 'dracula',
+        lineNumbers: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        styleActiveLine: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        extraKeys: {
+          'Tab': (cm) => cm.execCommand('insertSoftTab'),
+          'Ctrl-Enter': () => termRun(),
+          'Cmd-Enter': () => termRun(),
+          'Escape': () => hideAgentBar(),
+        },
+        lineWrapping: false,
+        scrollbarStyle: 'native',
+        viewportMargin: Infinity,
+      });
 
-  // Sync changes → line count + live update
-  cmEditor.on('change', () => {
-    const lines = cmEditor.lineCount();
-    const lc = document.getElementById('line-count');
-    if (lc) lc.textContent = `${lines} line${lines !== 1 ? 's' : ''}`;
-  });
+      // Sync changes → line count + live update
+      cmEditor.on('change', () => {
+        const lines = cmEditor.lineCount();
+        const lc = document.getElementById('line-count');
+        if (lc) lc.textContent = `${lines} line${lines !== 1 ? 's' : ''}`;
+      });
 
-  // Make CM fill the wrapper div
-  cmEditor.setSize('100%', '100%');
-}
-
-function cmGetValue() {
-  return cmEditor ? cmEditor.getValue() : (document.getElementById('code-editor') ? document.getElementById('code-editor').value : '');
-}
-
-function cmSetValue(code) {
-  if (cmEditor) {
-    cmEditor.setValue(code || '');
-    cmEditor.clearHistory();
-  } else {
-    const ta = document.getElementById('code-editor');
-    if (ta) ta.value = code || '';
-  }
-}
-
-function cmSetMode(lang) {
-  if (cmEditor) cmEditor.setOption('mode', CM_MODES[lang] || 'python');
-}
-
-function cmFocus() {
-  if (cmEditor) cmEditor.focus();
-}
-
-// ═══════════════════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════════════════
-
-// ═══════════════════════════════════════════════════════════
-//  STEMBOT CANVAS ANIMATION
-// ═══════════════════════════════════════════════════════════
-function initBotCanvas() {
-  const canvas = document.getElementById('bot-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  let frame = 0;
-  let imgLoaded = false;
-
-  const img = new Image();
-  img.onload = () => { imgLoaded = true; };
-  img.onerror = () => { imgLoaded = false; };
-  img.src = '{{ url_for("static", filename="stembot_coder.png") }}';
-
-  // Floating code particles drawn BEHIND the bot
-  const particles = [
-    { text: '{}',   x: 68, y: 12, vx:  0.35, vy: -0.18, alpha: 0.45 },
-    { text: '//',   x: 6,  y: 28, vx: -0.22, vy:  0.28,  alpha: 0.38 },
-    { text: '=>',   x: 72, y: 58, vx:  0.18, vy:  0.25,  alpha: 0.42 },
-    { text: '()',   x: 4,  y: 62, vx: -0.28, vy: -0.18,  alpha: 0.4  },
-    { text: '[]',   x: 38, y: 4,  vx:  0.12, vy: -0.32,  alpha: 0.35 },
-    { text: 'def',  x: 55, y: 76, vx: -0.15, vy:  0.2,   alpha: 0.32 },
-    { text: 'fn()', x: 2,  y: 45, vx:  0.2,  vy: -0.22,  alpha: 0.3  },
-  ];
-
-  function drawFrame() {
-    ctx.clearRect(0, 0, W, H);
-
-    // Teal radial glow bg
-    const grd = ctx.createRadialGradient(W/2, H*0.6, 4, W/2, H*0.6, W * 0.7);
-    grd.addColorStop(0, 'rgba(0,229,176,0.10)');
-    grd.addColorStop(1, 'rgba(0,229,176,0)');
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, W, H);
-
-    // Particles BEHIND bot
-    ctx.font = '7.5px "JetBrains Mono", monospace';
-    for (const p of particles) {
-      const alpha = p.alpha * (0.5 + 0.5 * Math.sin(frame * 0.055 + p.x * 0.3));
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = '#00e5b0';
-      ctx.fillText(p.text, p.x, p.y);
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < -12 || p.x > W + 12) p.vx *= -1;
-      if (p.y < -12 || p.y > H + 12) p.vy *= -1;
-    }
-    ctx.globalAlpha = 1;
-
-    // Gentle bob
-    const bob = Math.sin(frame * 0.038) * 3;
-
-    if (imgLoaded) {
-      // Real STEMbot image — fill canvas with 2px padding
-      ctx.drawImage(img, 2, 2 + bob, W - 4, H - 4);
-    } else {
-      // Placeholder that looks like STEMbot (orange + dark blue)
-      const cx = W / 2, cy = H / 2 + bob;
-      ctx.fillStyle = '#1e3a5f';
-      ctx.beginPath(); ctx.roundRect(cx-22, cy-8, 44, 32, 8); ctx.fill();
-      ctx.fillStyle = '#e05a00';
-      ctx.beginPath(); ctx.roundRect(cx-20, cy-30, 40, 28, 10); ctx.fill();
-      ctx.fillStyle = '#0d1520';
-      ctx.beginPath(); ctx.roundRect(cx-16, cy-27, 32, 22, 7); ctx.fill();
-      ctx.fillStyle = 'white';
-      ctx.beginPath(); ctx.arc(cx-7, cy-16, 6, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(cx+7, cy-16, 6, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#111820';
-      ctx.beginPath(); ctx.arc(cx-7, cy-16, 3, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(cx+7, cy-16, 3, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#e05a00';
-      ctx.beginPath(); ctx.roundRect(cx-18, cy+22, 14, 8, 4); ctx.fill();
-      ctx.beginPath(); ctx.roundRect(cx+4,  cy+22, 14, 8, 4); ctx.fill();
+      // Make CM fill the wrapper div
+      cmEditor.setSize('100%', '100%');
     }
 
-    frame++;
-    requestAnimationFrame(drawFrame);
-  }
-  drawFrame();
-}
-function initBotTicker() {
-  const ticker = document.getElementById('bot-ticker');
-  if (!ticker) return;
-  const lines = [
-    'def solve(n):', '  return n*2',  'for x in range:',
-    '  print(x)',   'class STEMbot:', '  def code():',
-    'int main(){',  '  return 0;}',  'console.log()',
-    'vector<int> v;','if x > 0:',    '  x += 1',
-  ];
-  let idx = 0;
-  function tick() {
-    ticker.textContent = [lines[idx%lines.length], lines[(idx+1)%lines.length], lines[(idx+2)%lines.length]].join('\n');
-    idx++;
-  }
-  tick(); setInterval(tick, 900);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  initBotCanvas();
-  initBotTicker();
-  initCodeMirror();
-  checkHealth();
-  updateLibsList();
-  updateModelBadge();
-  switchTab('terminal');
-  termClear();
-  onEditorChange();
-  setInterval(checkHealth, 30000);
-});
-
-async function checkHealth() {
-  try {
-    const r = await fetch(`${API}/api/health`, { signal: AbortSignal.timeout(3000) });
-    setStatus(r.ok);
-  } catch {
-    setStatus(false);
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-//  LANGUAGE & LEVEL
-// ═══════════════════════════════════════════════════════════
-function setLanguage(lang) {
-  currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.lang-btn[data-lang="${lang}"]`).classList.add('active');
-  document.getElementById('editor-lang-title').textContent = EXTS[lang] || 'main';
-  cmSetMode(lang);
-  updateLibsList();
-  updateModelBadge();
-  toast(`Language: ${lang.toUpperCase()}`, 'info');
-}
-
-// AI level is auto-selected by backend — no manual selection needed
-
-function updateLibsList() {
-  const libs = {
-    python: ['numpy','pandas','matplotlib','scikit-learn','requests','flask','tensorflow','torch','PIL','scipy'],
-    javascript: ['fs','path','http','https','readline','crypto','os','events','stream','buffer'],
-    c: ['stdio.h','stdlib.h','string.h','math.h','time.h','assert.h','ctype.h'],
-    cpp: ['iostream','vector','string','algorithm','map','set','queue','memory','fstream','chrono']
-  };
-  const el = document.getElementById('libs-list');
-  el.innerHTML = (libs[currentLang] || []).map(l =>
-    `<span class="lib-chip" onclick="insertLib('${l}')">${l}</span>`
-  ).join('');
-}
-
-function insertLib(lib) {
-  let insert = '';
-  if (currentLang === 'python') insert = `import ${lib}\n`;
-  else if (currentLang === 'javascript') insert = `const ${lib.replace('-','_')} = require('${lib}');\n`;
-  else if (['c','cpp'].includes(currentLang)) insert = `#include <${lib}>\n`;
-  cmSetValue(insert + cmGetValue());
-  onEditorChange();
-  cmFocus();
-}
-
-// ═══════════════════════════════════════════════════════════
-//  EDITOR
-// ═══════════════════════════════════════════════════════════
-function onEditorChange() {
-  const code = cmGetValue();
-  const lines = code ? code.split('\n').length : 1;
-  const lc = document.getElementById('line-count');
-  if (lc) lc.textContent = `${lines} line${lines !== 1 ? 's' : ''}`;
-}
-
-function handleTab(e) {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const el = e.target;
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-    el.value = el.value.substring(0, start) + '    ' + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = start + 4;
-  }
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); termRun(); }
-  if (e.key === 'Escape') hideAgentBar();
-}
-
-function clearCode() {
-  if (confirm('Clear the editor?')) {
-    cmSetValue('');
-    onEditorChange();
-  }
-}
-
-function copyCode() {
-  const code = cmGetValue();
-  navigator.clipboard.writeText(code).then(() => toast('Copied!', 'success'));
-}
-
-function loadSnippet(key) {
-  const snippet = (SNIPPETS[currentLang] || {})[key];
-  if (!snippet) { toast('Snippet not available for this language', 'error'); return; }
-  cmSetValue(snippet);
-  onEditorChange();
-  toast(`Loaded: ${key}`, 'success');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  TABS
-// ═══════════════════════════════════════════════════════════
-function switchTab(tab) {
-  document.querySelectorAll('.out-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  const oc = document.getElementById('output-content');
-  const tp = document.getElementById('terminal-pane');
-  const isTerminal = tab === 'terminal';
-  if (oc) {
-    oc.dataset.view = tab;
-    oc.style.display = isTerminal ? 'none' : 'flex';
-  }
-  if (tp) tp.style.display = isTerminal ? 'flex' : 'none';
-}
-
-// ═══════════════════════════════════════════════════════════
-//  RUN CODE
-// ═══════════════════════════════════════════════════════════
-async function runCode() {
-  return termRun();
-}
-
-// ═══════════════════════════════════════════════════════════
-//  AGENTIC
-// ═══════════════════════════════════════════════════════════
-function showAgentBar() {
-  const bar = document.getElementById('agentic-bar');
-  bar.style.display = 'flex';
-  document.getElementById('agentic-input').focus();
-}
-
-function hideAgentBar() {
-  document.getElementById('agentic-bar').style.display = 'none';
-}
-
-function agentKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) runAgentic();
-}
-
-async function runAgentic() {
-  const prompt = document.getElementById('agentic-input').value.trim();
-  if (!prompt) { toast('Describe what to build!', 'error'); return; }
-
-  hideAgentBar();
-  switchTab('agentic');
-  showEditorLoader('🤖 STEMbot coder is building...');
-
-  const steps = [];
-  const addStep = (icon, text, time='') => {
-    steps.push({icon, text, time});
-    renderAgenticLog(steps);
-  };
-
-  addStep('🔍', `<strong>Task:</strong> ${escapeHtml(prompt)}`);
-  addStep('🧠', `<strong>STEMbot coder</strong> is analyzing your request...`);
-
-  const t0 = Date.now();
-
-  try {
-    const r = await fetch(`${API}/api/lab/agentic`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ prompt, language: currentLang })
-    });
-    const data = await r.json();
-    const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
-
-    if (!data.success) {
-      hideEditorLoader();
-      addStep('✗', `<strong>Error:</strong> ${escapeHtml(data.error)}`);
-      toast('STEMbot coder generation failed', 'error');
-      return;
+    function cmGetValue() {
+      return cmEditor ? cmEditor.getValue() : (document.getElementById('code-editor') ? document.getElementById('code-editor').value : '');
     }
 
-    stats.ai++;
-    stats.agentic++;
-    document.getElementById('stat-ai').textContent = stats.ai;
-    document.getElementById('stat-agentic').textContent = stats.agentic;
-
-    addStep('✓', `<strong>Model used:</strong> STEMbot Coder`, elapsed + 's');
-    addStep('📝', `<strong>Code generated</strong> (${data.code.split('\n').length} lines)`);
-
-    // Inject code into editor
-    cmSetValue(data.code);
-    onEditorChange();
-    hideEditorLoader();
-
-    // Show execution result
-    const exec = data.execution;
-    const execTag = exec.success ? '✓ Auto-executed' : '✗ Execution error';
-    addStep(exec.success ? '▶' : '✗', `<strong>${execTag}</strong> in ${exec.time}s`);
-
-    if (exec.output || exec.error) {
-      addStep('📤', `<strong>Output:</strong><br><pre class="terminal-block ${exec.success?'success':'error'}" style="margin-top:6px;font-size:11px;">${escapeHtml(exec.output || exec.error)}</pre>`);
-    }
-
-    termRenderExecution({
-      success: exec.success,
-      output: exec.output,
-      error: exec.error,
-      time: exec.time,
-      label: `STEMbot coder · ${data.label}`,
-      language: currentLang
-    });
-    switchTab('terminal');
-
-  } catch(e) {
-    hideEditorLoader();
-    addStep('✗', `<strong>Network error:</strong> ${escapeHtml(e.message)}`);
-    toast('Connection failed', 'error');
-  }
-}
-
-async function generateOnly() {
-  const prompt = document.getElementById('agentic-input').value.trim();
-  if (!prompt) { toast('Describe what to build!', 'error'); return; }
-
-  hideAgentBar();
-  showEditorLoader('✨ Generating code...');
-
-  try {
-    const r = await fetch(`${API}/api/lab/generate/stream`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ prompt, language: currentLang })
-    });
-
-    const reader = r.body.getReader();
-    const decoder = new TextDecoder();
-    let code = '';
-    let meta = null;
-    document.getElementById('code-editor').value = '';
-
-    hideEditorLoader();
-
-    while(true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const text = decoder.decode(value, { stream: true });
-      const lines = text.split('\n');
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        try {
-          const evt = JSON.parse(line.slice(6));
-          if (evt.type === 'meta') {
-            meta = evt;
-            stats.ai++;
-            document.getElementById('stat-ai').textContent = stats.ai;
-            toast(`Using ${evt.label}`, 'info');
-          } else if (evt.type === 'token') {
-            code += evt.content;
-            cmSetValue(code);
-            onEditorChange();
-          } else if (evt.type === 'done') {
-            // Strip fences
-            if (code.startsWith('```')) {
-              const lines2 = code.split('\n');
-              code = lines2[lines2.length-1].trim() === '```' ? lines2.slice(1,-1).join('\n') : lines2.slice(1).join('\n');
-              cmSetValue(code);
-            }
-            toast('✨ Code generated!', 'success');
-          }
-        } catch {}
+    function cmSetValue(code) {
+      if (cmEditor) {
+        cmEditor.setValue(code || '');
+        cmEditor.clearHistory();
+      } else {
+        const ta = document.getElementById('code-editor');
+        if (ta) ta.value = code || '';
       }
     }
-  } catch(e) {
-    hideEditorLoader();
-    toast('Generation failed: ' + e.message, 'error');
-  }
-}
 
-function renderAgenticLog(steps) {
-  const html = steps.map(s => `
+    function cmSetMode(lang) {
+      if (cmEditor) cmEditor.setOption('mode', CM_MODES[lang] || 'python');
+    }
+
+    function cmFocus() {
+      if (cmEditor) cmEditor.focus();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════════════════════════
+
+    // ═══════════════════════════════════════════════════════════
+    //  STEMBOT CANVAS ANIMATION
+    // ═══════════════════════════════════════════════════════════
+    function initBotCanvas() {
+      const canvas = document.getElementById('bot-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      let frame = 0;
+      let imgLoaded = false;
+
+      const img = new Image();
+      img.onload = () => { imgLoaded = true; };
+      img.onerror = () => { imgLoaded = false; };
+      img.src = '{{ url_for("static", filename="stembot_coder.png") }}';
+
+      // Floating code particles drawn BEHIND the bot
+      const particles = [
+        { text: '{}', x: 68, y: 12, vx: 0.35, vy: -0.18, alpha: 0.45 },
+        { text: '//', x: 6, y: 28, vx: -0.22, vy: 0.28, alpha: 0.38 },
+        { text: '=>', x: 72, y: 58, vx: 0.18, vy: 0.25, alpha: 0.42 },
+        { text: '()', x: 4, y: 62, vx: -0.28, vy: -0.18, alpha: 0.4 },
+        { text: '[]', x: 38, y: 4, vx: 0.12, vy: -0.32, alpha: 0.35 },
+        { text: 'def', x: 55, y: 76, vx: -0.15, vy: 0.2, alpha: 0.32 },
+        { text: 'fn()', x: 2, y: 45, vx: 0.2, vy: -0.22, alpha: 0.3 },
+      ];
+
+      function drawFrame() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Teal radial glow bg
+        const grd = ctx.createRadialGradient(W / 2, H * 0.6, 4, W / 2, H * 0.6, W * 0.7);
+        grd.addColorStop(0, 'rgba(0,229,176,0.10)');
+        grd.addColorStop(1, 'rgba(0,229,176,0)');
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, W, H);
+
+        // Particles BEHIND bot
+        ctx.font = '7.5px "JetBrains Mono", monospace';
+        for (const p of particles) {
+          const alpha = p.alpha * (0.5 + 0.5 * Math.sin(frame * 0.055 + p.x * 0.3));
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = '#00e5b0';
+          ctx.fillText(p.text, p.x, p.y);
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < -12 || p.x > W + 12) p.vx *= -1;
+          if (p.y < -12 || p.y > H + 12) p.vy *= -1;
+        }
+        ctx.globalAlpha = 1;
+
+        // Gentle bob
+        const bob = Math.sin(frame * 0.038) * 3;
+
+        if (imgLoaded) {
+          // Real STEMbot image — fill canvas with 2px padding
+          ctx.drawImage(img, 2, 2 + bob, W - 4, H - 4);
+        } else {
+          // Placeholder that looks like STEMbot (orange + dark blue)
+          const cx = W / 2, cy = H / 2 + bob;
+          ctx.fillStyle = '#1e3a5f';
+          ctx.beginPath(); ctx.roundRect(cx - 22, cy - 8, 44, 32, 8); ctx.fill();
+          ctx.fillStyle = '#e05a00';
+          ctx.beginPath(); ctx.roundRect(cx - 20, cy - 30, 40, 28, 10); ctx.fill();
+          ctx.fillStyle = '#0d1520';
+          ctx.beginPath(); ctx.roundRect(cx - 16, cy - 27, 32, 22, 7); ctx.fill();
+          ctx.fillStyle = 'white';
+          ctx.beginPath(); ctx.arc(cx - 7, cy - 16, 6, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(cx + 7, cy - 16, 6, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#111820';
+          ctx.beginPath(); ctx.arc(cx - 7, cy - 16, 3, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(cx + 7, cy - 16, 3, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#e05a00';
+          ctx.beginPath(); ctx.roundRect(cx - 18, cy + 22, 14, 8, 4); ctx.fill();
+          ctx.beginPath(); ctx.roundRect(cx + 4, cy + 22, 14, 8, 4); ctx.fill();
+        }
+
+        frame++;
+        requestAnimationFrame(drawFrame);
+      }
+      drawFrame();
+    }
+    function initBotTicker() {
+      const ticker = document.getElementById('bot-ticker');
+      if (!ticker) return;
+      const lines = [
+        'def solve(n):', '  return n*2', 'for x in range:',
+        '  print(x)', 'class STEMbot:', '  def code():',
+        'int main(){', '  return 0;}', 'console.log()',
+        'vector<int> v;', 'if x > 0:', '  x += 1',
+      ];
+      let idx = 0;
+      function tick() {
+        ticker.textContent = [lines[idx % lines.length], lines[(idx + 1) % lines.length], lines[(idx + 2) % lines.length]].join('\n');
+        idx++;
+      }
+      tick(); setInterval(tick, 900);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initBotCanvas();
+      initBotTicker();
+      initCodeMirror();
+      checkHealth();
+      updateLibsList();
+      updateModelBadge();
+      switchTab('terminal');
+      termClear();
+      onEditorChange();
+      setInterval(checkHealth, 30000);
+    });
+
+    async function checkHealth() {
+      try {
+        const r = await fetch(`${API}/api/health`, { signal: AbortSignal.timeout(3000) });
+        setStatus(r.ok);
+      } catch {
+        setStatus(false);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  LANGUAGE & LEVEL
+    // ═══════════════════════════════════════════════════════════
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.lang-btn[data-lang="${lang}"]`).classList.add('active');
+      document.getElementById('editor-lang-title').textContent = EXTS[lang] || 'main';
+      cmSetMode(lang);
+      updateLibsList();
+      updateModelBadge();
+      toast(`Language: ${lang.toUpperCase()}`, 'info');
+    }
+
+    // AI level is auto-selected by backend — no manual selection needed
+
+    function updateLibsList() {
+      const libs = {
+        python: ['numpy', 'pandas', 'matplotlib', 'scikit-learn', 'requests', 'flask', 'tensorflow', 'torch', 'PIL', 'scipy'],
+        javascript: ['fs', 'path', 'http', 'https', 'readline', 'crypto', 'os', 'events', 'stream', 'buffer'],
+        c: ['stdio.h', 'stdlib.h', 'string.h', 'math.h', 'time.h', 'assert.h', 'ctype.h'],
+        cpp: ['iostream', 'vector', 'string', 'algorithm', 'map', 'set', 'queue', 'memory', 'fstream', 'chrono']
+      };
+      const el = document.getElementById('libs-list');
+      el.innerHTML = (libs[currentLang] || []).map(l =>
+        `<span class="lib-chip" onclick="insertLib('${l}')">${l}</span>`
+      ).join('');
+    }
+
+    function insertLib(lib) {
+      let insert = '';
+      if (currentLang === 'python') insert = `import ${lib}\n`;
+      else if (currentLang === 'javascript') insert = `const ${lib.replace('-', '_')} = require('${lib}');\n`;
+      else if (['c', 'cpp'].includes(currentLang)) insert = `#include <${lib}>\n`;
+      cmSetValue(insert + cmGetValue());
+      onEditorChange();
+      cmFocus();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  EDITOR
+    // ═══════════════════════════════════════════════════════════
+    function onEditorChange() {
+      const code = cmGetValue();
+      const lines = code ? code.split('\n').length : 1;
+      const lc = document.getElementById('line-count');
+      if (lc) lc.textContent = `${lines} line${lines !== 1 ? 's' : ''}`;
+    }
+
+    function handleTab(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const el = e.target;
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        el.value = el.value.substring(0, start) + '    ' + el.value.substring(end);
+        el.selectionStart = el.selectionEnd = start + 4;
+      }
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); termRun(); }
+      if (e.key === 'Escape') hideAgentBar();
+    }
+
+    function clearCode() {
+      if (confirm('Clear the editor?')) {
+        cmSetValue('');
+        onEditorChange();
+      }
+    }
+
+    function copyCode() {
+      const code = cmGetValue();
+      navigator.clipboard.writeText(code).then(() => toast('Copied!', 'success'));
+    }
+
+    function loadSnippet(key) {
+      const snippet = (SNIPPETS[currentLang] || {})[key];
+      if (!snippet) { toast('Snippet not available for this language', 'error'); return; }
+      cmSetValue(snippet);
+      onEditorChange();
+      toast(`Loaded: ${key}`, 'success');
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  TABS
+    // ═══════════════════════════════════════════════════════════
+    function switchTab(tab) {
+      document.querySelectorAll('.out-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      const oc = document.getElementById('output-content');
+      const tp = document.getElementById('terminal-pane');
+      const isTerminal = tab === 'terminal';
+      if (oc) {
+        oc.dataset.view = tab;
+        oc.style.display = isTerminal ? 'none' : 'flex';
+      }
+      if (tp) tp.style.display = isTerminal ? 'flex' : 'none';
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  RUN CODE
+    // ═══════════════════════════════════════════════════════════
+    async function runCode() {
+      return termRun();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    //  AGENTIC
+    // ═══════════════════════════════════════════════════════════
+    function showAgentBar() {
+      const bar = document.getElementById('agentic-bar');
+      bar.style.display = 'flex';
+      document.getElementById('agentic-input').focus();
+    }
+
+    function hideAgentBar() {
+      document.getElementById('agentic-bar').style.display = 'none';
+    }
+
+    function agentKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) runAgentic();
+    }
+
+    async function runAgentic() {
+      const prompt = document.getElementById('agentic-input').value.trim();
+      if (!prompt) { toast('Describe what to build!', 'error'); return; }
+
+      hideAgentBar();
+      switchTab('agentic');
+      showEditorLoader('🤖 STEMbot coder is building...');
+
+      const steps = [];
+      const addStep = (icon, text, time = '') => {
+        steps.push({ icon, text, time });
+        renderAgenticLog(steps);
+      };
+
+      addStep('🔍', `<strong>Task:</strong> ${escapeHtml(prompt)}`);
+      addStep('🧠', `<strong>STEMbot coder</strong> is analyzing your request...`);
+
+      const t0 = Date.now();
+
+      try {
+        const r = await fetch(`${API}/api/lab/agentic`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, language: currentLang })
+        });
+        const data = await r.json();
+        const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+
+        if (!data.success) {
+          hideEditorLoader();
+          addStep('✗', `<strong>Error:</strong> ${escapeHtml(data.error)}`);
+          toast('STEMbot coder generation failed', 'error');
+          return;
+        }
+
+        stats.ai++;
+        stats.agentic++;
+        document.getElementById('stat-ai').textContent = stats.ai;
+        document.getElementById('stat-agentic').textContent = stats.agentic;
+
+        addStep('✓', `<strong>Model used:</strong> STEMbot Coder`, elapsed + 's');
+        addStep('📝', `<strong>Code generated</strong> (${data.code.split('\n').length} lines)`);
+
+        // Inject code into editor
+        cmSetValue(data.code);
+        onEditorChange();
+        hideEditorLoader();
+
+        // Show execution result
+        const exec = data.execution;
+        const execTag = exec.success ? '✓ Auto-executed' : '✗ Execution error';
+        addStep(exec.success ? '▶' : '✗', `<strong>${execTag}</strong> in ${exec.time}s`);
+
+        if (exec.output || exec.error) {
+          addStep('📤', `<strong>Output:</strong><br><pre class="terminal-block ${exec.success ? 'success' : 'error'}" style="margin-top:6px;font-size:11px;">${escapeHtml(exec.output || exec.error)}</pre>`);
+        }
+
+        termRenderExecution({
+          success: exec.success,
+          output: exec.output,
+          error: exec.error,
+          time: exec.time,
+          label: `STEMbot coder · ${data.label}`,
+          language: currentLang
+        });
+        switchTab('terminal');
+
+      } catch (e) {
+        hideEditorLoader();
+        addStep('✗', `<strong>Network error:</strong> ${escapeHtml(e.message)}`);
+        toast('Connection failed', 'error');
+      }
+    }
+
+    async function generateOnly() {
+      const prompt = document.getElementById('agentic-input').value.trim();
+      if (!prompt) { toast('Describe what to build!', 'error'); return; }
+
+      hideAgentBar();
+      showEditorLoader('✨ Generating code...');
+
+      try {
+        const r = await fetch(`${API}/api/lab/generate/stream`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, language: currentLang })
+        });
+
+        const reader = r.body.getReader();
+        const decoder = new TextDecoder();
+        let code = '';
+        let meta = null;
+        document.getElementById('code-editor').value = '';
+
+        hideEditorLoader();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const text = decoder.decode(value, { stream: true });
+          const lines = text.split('\n');
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const evt = JSON.parse(line.slice(6));
+              if (evt.type === 'meta') {
+                meta = evt;
+                stats.ai++;
+                document.getElementById('stat-ai').textContent = stats.ai;
+                toast(`Using ${evt.label}`, 'info');
+              } else if (evt.type === 'token') {
+                code += evt.content;
+                cmSetValue(code);
+                onEditorChange();
+              } else if (evt.type === 'done') {
+                // Strip fences
+                if (code.startsWith('```')) {
+                  const lines2 = code.split('\n');
+                  code = lines2[lines2.length - 1].trim() === '```' ? lines2.slice(1, -1).join('\n') : lines2.slice(1).join('\n');
+                  cmSetValue(code);
+                }
+                toast('✨ Code generated!', 'success');
+              }
+            } catch { }
+          }
+        }
+      } catch (e) {
+        hideEditorLoader();
+        toast('Generation failed: ' + e.message, 'error');
+      }
+    }
+
+    function renderAgenticLog(steps) {
+      const html = steps.map(s => `
     <div class="agent-step">
       <span class="agent-step-icon">${s.icon}</span>
       <span class="agent-step-text">${s.text}</span>
       ${s.time ? `<span class="agent-step-time">${s.time}</span>` : ''}
     </div>`).join('');
-  document.getElementById('output-content').innerHTML = html;
-}
-
-// ═══════════════════════════════════════════════════════════
-//  FIX & EXPLAIN
-// ═══════════════════════════════════════════════════════════
-async function fixCode() {
-  const code = cmGetValue().trim();
-  if (!code) { toast('No code to fix!', 'error'); return; }
-
-  showEditorLoader('🔧 AI fixing errors...');
-  try {
-    const r = await fetch(`${API}/api/lab/fix`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ code, language: currentLang, error: '' })
-    });
-    const data = await r.json();
-    hideEditorLoader();
-    stats.ai++;
-    document.getElementById('stat-ai').textContent = stats.ai;
-
-    if (data.success) {
-      cmSetValue(data.code);
-      onEditorChange();
-      toast('✓ Code fixed by STEMbot Coder', 'success');
-    } else {
-      toast('Fix failed: ' + data.error, 'error');
+      document.getElementById('output-content').innerHTML = html;
     }
-  } catch(e) {
-    hideEditorLoader();
-    toast('Connection error', 'error');
-  }
-}
 
-async function explainCode() {
-  const code = cmGetValue().trim();
-  if (!code) { toast('No code to explain!', 'error'); return; }
+    // ═══════════════════════════════════════════════════════════
+    //  FIX & EXPLAIN
+    // ═══════════════════════════════════════════════════════════
+    async function fixCode() {
+      const code = cmGetValue().trim();
+      if (!code) { toast('No code to fix!', 'error'); return; }
 
-  switchTab('explain');
-  setOutput(`
+      showEditorLoader('🔧 AI fixing errors...');
+      try {
+        const r = await fetch(`${API}/api/lab/fix`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, language: currentLang, error: '' })
+        });
+        const data = await r.json();
+        hideEditorLoader();
+        stats.ai++;
+        document.getElementById('stat-ai').textContent = stats.ai;
+
+        if (data.success) {
+          cmSetValue(data.code);
+          onEditorChange();
+          toast('✓ Code fixed by STEMbot Coder', 'success');
+        } else {
+          toast('Fix failed: ' + data.error, 'error');
+        }
+      } catch (e) {
+        hideEditorLoader();
+        toast('Connection error', 'error');
+      }
+    }
+
+    async function explainCode() {
+      const code = cmGetValue().trim();
+      if (!code) { toast('No code to explain!', 'error'); return; }
+
+      switchTab('explain');
+      setOutput(`
     <div class="explain-wrap">
       <div class="explain-header">
         <div class="explain-badge">
@@ -2695,18 +3396,18 @@ async function explainCode() {
       </div>
     </div>`);
 
-  try {
-    const r = await fetch(`${API}/api/lab/explain`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ code, language: currentLang })
-    });
-    const data = await r.json();
-    stats.ai++;
-    document.getElementById('stat-ai').textContent = stats.ai;
+      try {
+        const r = await fetch(`${API}/api/lab/explain`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, language: currentLang })
+        });
+        const data = await r.json();
+        stats.ai++;
+        document.getElementById('stat-ai').textContent = stats.ai;
 
-    if (data.success) {
-      setOutput(`
+        if (data.success) {
+          setOutput(`
         <div class="explain-wrap">
           <div class="explain-header">
             <div class="explain-badge">
@@ -2722,357 +3423,358 @@ async function explainCode() {
             </div>
           </div>
         </div>`);
-      toast('✓ Explained!', 'success');
-    } else {
-      setOutput(`<div style="padding:16px;"><div class="terminal-block error">${escapeHtml(data.error)}</div></div>`);
+          toast('✓ Explained!', 'success');
+        } else {
+          setOutput(`<div style="padding:16px;"><div class="terminal-block error">${escapeHtml(data.error)}</div></div>`);
+        }
+      } catch (e) {
+        setOutput(`<div style="padding:16px;"><div class="terminal-block error">Connection error: ${escapeHtml(e.message)}</div></div>`);
+      }
     }
-  } catch(e) {
-    setOutput(`<div style="padding:16px;"><div class="terminal-block error">Connection error: ${escapeHtml(e.message)}</div></div>`);
-  }
-}
 
-function formatExplanation(text) {
-  // Clean up markdown into polished HTML
-  return text
-    // Bold headings like "### What it does:" → styled section titles
-    .replace(/^#{1,3}\s*(.+)$/gm, (_, t) =>
-      `<div class="explain-section-title">${t}</div>`)
-    // Numbered headings like "1. Include Libraries:" → styled
-    .replace(/^(\d+)\.\s+\*\*(.+?)\*\*:?(.*)$/gm, (_, n, title, rest) =>
-      `<div class="explain-section-title">${n}. ${title}</div>${rest ? `<p>${rest.trim()}</p>` : ''}`)
-    // Bold inline
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    // Inline code
-    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
-    // Bullet list items
-    .replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>')
-    // Wrap consecutive <li> in <ul>
-    .replace(/(<li>[\s\S]*?<\/li>)(\s*(?!<li>))/g, (m) => {
-      if (m.includes('<ul>')) return m;
-      return '<ul>' + m.trim() + '</ul>';
-    })
-    // Double newlines → paragraph breaks
-    .replace(/\n\n/g, '</p><p>')
-    // Single newlines → line breaks
-    .replace(/\n/g, '<br>')
-    // Wrap loose text in paragraphs if not already in a tag
-    .replace(/^([^<\s][^<]+)$/gm, '<p>$1</p>');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  CHAT
-// ═══════════════════════════════════════════════════════════
-function toggleChat() {
-  document.getElementById('chat-panel').classList.toggle('open');
-}
-
-function chatKey(e) {
-  if (e.key === 'Enter') sendChat();
-}
-
-async function sendChat() {
-  const input = document.getElementById('chat-input');
-  const msg = input.value.trim();
-  if (!msg) return;
-  input.value = '';
-
-  chatHistory.push({ role: 'user', content: msg });
-  addChatMsg(msg, 'user');
-
-  try {
-    const r = await fetch(`${API}/api/lab/chat`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ messages: chatHistory, language: currentLang })
-    });
-    const data = await r.json();
-    if (data.success) {
-      chatHistory.push({ role: 'assistant', content: data.reply });
-      addChatMsg(data.reply, 'ai');
-    } else {
-      addChatMsg('I hit an issue: ' + (data.error || 'unknown error'), 'ai');
+    function formatExplanation(text) {
+      // Clean up markdown into polished HTML
+      return text
+        // Bold headings like "### What it does:" → styled section titles
+        .replace(/^#{1,3}\s*(.+)$/gm, (_, t) =>
+          `<div class="explain-section-title">${t}</div>`)
+        // Numbered headings like "1. Include Libraries:" → styled
+        .replace(/^(\d+)\.\s+\*\*(.+?)\*\*:?(.*)$/gm, (_, n, title, rest) =>
+          `<div class="explain-section-title">${n}. ${title}</div>${rest ? `<p>${rest.trim()}</p>` : ''}`)
+        // Bold inline
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Inline code
+        .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+        // Bullet list items
+        .replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>')
+        // Wrap consecutive <li> in <ul>
+        .replace(/(<li>[\s\S]*?<\/li>)(\s*(?!<li>))/g, (m) => {
+          if (m.includes('<ul>')) return m;
+          return '<ul>' + m.trim() + '</ul>';
+        })
+        // Double newlines → paragraph breaks
+        .replace(/\n\n/g, '</p><p>')
+        // Single newlines → line breaks
+        .replace(/\n/g, '<br>')
+        // Wrap loose text in paragraphs if not already in a tag
+        .replace(/^([^<\s][^<]+)$/gm, '<p>$1</p>');
     }
-  } catch(e) {
-    addChatMsg('I couldn’t respond right now. Check the server and try again.', 'ai');
-  }
-}
 
-function addChatMsg(text, role) {
-  const msgs = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = `chat-msg ${role}`;
-  div.innerHTML = text.replace(/`([^`]+)`/g, '<code style="background:var(--bg-input);padding:1px 4px;border-radius:3px;font-family:var(--font-mono);font-size:11px;">$1</code>');
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
+    // ═══════════════════════════════════════════════════════════
+    //  CHAT
+    // ═══════════════════════════════════════════════════════════
+    function toggleChat() {
+      document.getElementById('chat-panel').classList.toggle('open');
+    }
 
-// ═══════════════════════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════════════════════
-function setOutput(html) {
-  document.getElementById('output-content').innerHTML = html;
-}
+    function chatKey(e) {
+      if (e.key === 'Enter') sendChat();
+    }
 
-function showEditorLoader(msg = 'Loading...') {
-  document.getElementById('loader-text').textContent = msg;
-  document.getElementById('editor-loader').style.display = 'flex';
-}
+    async function sendChat() {
+      const input = document.getElementById('chat-input');
+      const msg = input.value.trim();
+      if (!msg) return;
+      input.value = '';
 
-function hideEditorLoader() {
-  document.getElementById('editor-loader').style.display = 'none';
-}
+      chatHistory.push({ role: 'user', content: msg });
+      addChatMsg(msg, 'user');
 
-function escapeHtml(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+      try {
+        const r = await fetch(`${API}/api/lab/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: chatHistory, language: currentLang })
+        });
+        const data = await r.json();
+        if (data.success) {
+          chatHistory.push({ role: 'assistant', content: data.reply });
+          addChatMsg(data.reply, 'ai');
+        } else {
+          addChatMsg('I hit an issue: ' + (data.error || 'unknown error'), 'ai');
+        }
+      } catch (e) {
+        addChatMsg('I couldn’t respond right now. Check the server and try again.', 'ai');
+      }
+    }
 
-function updateModelBadge() {
-  const names = {
-    python: 'STEMbot coder · Python 3.x',
-    javascript: 'STEMbot coder · Node.js',
-    c: 'STEMbot coder · GCC C',
-    cpp: 'STEMbot coder · GCC C++'
-  };
-  const descs = {
-    python: 'Interactive terminal execution',
-    javascript: 'Interactive terminal execution',
-    c: 'Compiled execution in terminal',
-    cpp: 'Compiled execution in terminal'
-  };
-  document.getElementById('current-model-name').textContent = names[currentLang] || 'STEMbot coder';
-  document.getElementById('current-model-desc').textContent = descs[currentLang] || 'Ready to build, explain, and debug';
-}
+    function addChatMsg(text, role) {
+      const msgs = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.className = `chat-msg ${role}`;
+      div.innerHTML = text.replace(/`([^`]+)`/g, '<code style="background:var(--bg-input);padding:1px 4px;border-radius:3px;font-family:var(--font-mono);font-size:11px;">$1</code>');
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
 
-function setStatus(online) {
-  const dot = document.getElementById('status-dot');
-  const label = document.getElementById('status-label');
-  if (online) {
-    dot.style.background = 'var(--success)';
-    dot.style.boxShadow = '0 0 12px var(--success)';
-    label.textContent = 'Connected';
-  } else {
-    dot.style.background = '#ef4444';
-    dot.style.boxShadow = '0 0 12px #ef4444';
-    label.textContent = 'Offline — check server';
-  }
-}
+    // ═══════════════════════════════════════════════════════════
+    //  HELPERS
+    // ═══════════════════════════════════════════════════════════
+    function setOutput(html) {
+      document.getElementById('output-content').innerHTML = html;
+    }
 
-function toast(msg, type = 'info') {
-  const ct = document.getElementById('toast-container');
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
-  ct.appendChild(el);
-  setTimeout(() => {
-    el.classList.add('fade-out');
-    setTimeout(() => el.remove(), 400);
-  }, 2800);
-}
+    function showEditorLoader(msg = 'Loading...') {
+      document.getElementById('loader-text').textContent = msg;
+      document.getElementById('editor-loader').style.display = 'flex';
+    }
 
-function codeNeedsInteractiveInput(code) {
-  return [
-    'input(',
-    'scanf(',
-    'cin >>',
-    'cin>>',
-    'getline(cin',
-    'gets(',
-    'readline',
-    'prompt('
-  ].some(marker => code.includes(marker));
-}
+    function hideEditorLoader() {
+      document.getElementById('editor-loader').style.display = 'none';
+    }
 
-function termRenderChunk(text, cls = 'out') {
-  if (!text) return;
-  String(text).split('\n').forEach(line => termAddLine(line, cls));
-}
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
-function termRenderExecution({ success, output, error, time, label, language }) {
-  termClear();
-  termAddLine(`▶ Running ${(language || currentLang).toUpperCase()} code…`, 'sys');
-  if (label) termAddLine(label, 'sys');
-  if (time !== undefined && time !== null) termAddLine(`Time: ${time}s`, 'sys');
-  termAddLine('', 'sys');
-  if (output) termRenderChunk(output, 'out');
-  if (error) termRenderChunk(error, 'err');
-  if (!output && !error) termAddLine('(no output)', 'sys');
-  termAddLine('', 'sys');
-  termAddLine(`✓ Process exited (${success ? 'OK' : 'error'})`, success ? 'sys' : 'err');
-  termSetStatus(false);
-  toast(success ? '✓ Ran successfully in terminal' : '✗ Run completed with errors', success ? 'success' : 'error');
-}
+    function updateModelBadge() {
+      const names = {
+        python: 'STEMbot coder · Python 3.x',
+        javascript: 'STEMbot coder · Node.js',
+        c: 'STEMbot coder · GCC C',
+        cpp: 'STEMbot coder · GCC C++'
+      };
+      const descs = {
+        python: 'Interactive terminal execution',
+        javascript: 'Interactive terminal execution',
+        c: 'Compiled execution in terminal',
+        cpp: 'Compiled execution in terminal'
+      };
+      document.getElementById('current-model-name').textContent = names[currentLang] || 'STEMbot coder';
+      document.getElementById('current-model-desc').textContent = descs[currentLang] || 'Ready to build, explain, and debug';
+    }
 
-// ═══════════════════════════════════════════════════════════
-//  INTERACTIVE TERMINAL
-// ═══════════════════════════════════════════════════════════
-let termSessionId = null;
-let termRunning = false;
+    function setStatus(online) {
+      const dot = document.getElementById('status-dot');
+      const label = document.getElementById('status-label');
+      if (online) {
+        dot.style.background = 'var(--success)';
+        dot.style.boxShadow = '0 0 12px var(--success)';
+        label.textContent = 'Connected';
+      } else {
+        dot.style.background = '#ef4444';
+        dot.style.boxShadow = '0 0 12px #ef4444';
+        label.textContent = 'Offline — check server';
+      }
+    }
 
-function termSetStatus(running, mode = 'stopped') {
-  termRunning = running;
-  const el = document.getElementById('term-status');
-  const btn = document.getElementById('term-send-btn');
-  const inp = document.getElementById('terminal-user-input');
-  const runBtn = document.getElementById('term-run-btn');
-  if (el) {
-    el.className = 'term-status ' + (running ? (mode === 'waiting' ? 'waiting' : 'running') : 'stopped');
-    el.textContent = running ? (mode === 'waiting' ? '● Waiting for input' : '● Running') : '● Stopped';
-  }
-  if (btn) btn.disabled = !running;
-  if (inp) inp.disabled = !running;
-  if (runBtn) runBtn.textContent = running ? '↺ Re-run' : '▶ Run Terminal';
-  if (running && inp) inp.focus();
-}
+    function toast(msg, type = 'info') {
+      const ct = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.textContent = msg;
+      ct.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('fade-out');
+        setTimeout(() => el.remove(), 400);
+      }, 2800);
+    }
 
-function termAddLine(text, cls = 'out') {
-  const screen = document.getElementById('terminal-screen');
-  if (!screen || text === null || text === undefined) return;
-  if (document.getElementById('terminal-empty')) {
-    screen.innerHTML = '';
-  }
-  const span = document.createElement('span');
-  span.className = 'term-line ' + cls;
-  span.textContent = String(text);
-  screen.appendChild(span);
-  screen.scrollTop = screen.scrollHeight;
-}
+    function codeNeedsInteractiveInput(code) {
+      return [
+        'input(',
+        'scanf(',
+        'cin >>',
+        'cin>>',
+        'getline(cin',
+        'gets(',
+        'readline',
+        'prompt('
+      ].some(marker => code.includes(marker));
+    }
 
-function termClear() {
-  const s = document.getElementById('terminal-screen');
-  if (s) s.innerHTML = TERMINAL_EMPTY_HTML;
-}
+    function termRenderChunk(text, cls = 'out') {
+      if (!text) return;
+      String(text).split('\n').forEach(line => termAddLine(line, cls));
+    }
 
-async function termRun() {
-  const code = cmGetValue().trim();
-  if (!code) {
-    switchTab('terminal');
-    termClear();
-    termAddLine('⚠ No code in editor. Write some code first!', 'sys');
-    return;
-  }
+    function termRenderExecution({ success, output, error, time, label, language }) {
+      termClear();
+      termAddLine(`▶ Running ${(language || currentLang).toUpperCase()} code…`, 'sys');
+      if (label) termAddLine(label, 'sys');
+      if (time !== undefined && time !== null) termAddLine(`Time: ${time}s`, 'sys');
+      termAddLine('', 'sys');
+      if (output) termRenderChunk(output, 'out');
+      if (error) termRenderChunk(error, 'err');
+      if (!output && !error) termAddLine('(no output)', 'sys');
+      termAddLine('', 'sys');
+      termAddLine(`✓ Process exited (${success ? 'OK' : 'error'})`, success ? 'sys' : 'err');
+      termSetStatus(false);
+      toast(success ? '✓ Ran successfully in terminal' : '✗ Run completed with errors', success ? 'success' : 'error');
+    }
 
-  if (termSessionId) await termKill(true);
-  switchTab('terminal');
-  termClear();
-  termAddLine(`▶ Running ${currentLang.toUpperCase()} code…`, 'sys');
-  termSetStatus(true, 'running');
+    // ═══════════════════════════════════════════════════════════
+    //  INTERACTIVE TERMINAL
+    // ═══════════════════════════════════════════════════════════
+    let termSessionId = null;
+    let termRunning = false;
 
-  try {
-    if (codeNeedsInteractiveInput(code)) {
-      const r = await fetch(`${API}/api/lab/terminal/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, language: currentLang }),
-      });
-      const data = await r.json();
+    function termSetStatus(running, mode = 'stopped') {
+      termRunning = running;
+      const el = document.getElementById('term-status');
+      const btn = document.getElementById('term-send-btn');
+      const inp = document.getElementById('terminal-user-input');
+      const runBtn = document.getElementById('term-run-btn');
+      if (el) {
+        el.className = 'term-status ' + (running ? (mode === 'waiting' ? 'waiting' : 'running') : 'stopped');
+        el.textContent = running ? (mode === 'waiting' ? '● Waiting for input' : '● Running') : '● Stopped';
+      }
+      if (btn) btn.disabled = !running;
+      if (inp) inp.disabled = !running;
+      if (runBtn) runBtn.textContent = running ? '↺ Re-run' : '▶ Run Terminal';
+      if (running && inp) inp.focus();
+    }
 
-      if (!data.success) {
-        termAddLine(`✗ ${data.error || 'Unable to start terminal session.'}`, 'err');
-        termSetStatus(false);
+    function termAddLine(text, cls = 'out') {
+      const screen = document.getElementById('terminal-screen');
+      if (!screen || text === null || text === undefined) return;
+      if (document.getElementById('terminal-empty')) {
+        screen.innerHTML = '';
+      }
+      const span = document.createElement('span');
+      span.className = 'term-line ' + cls;
+      span.textContent = String(text);
+      screen.appendChild(span);
+      screen.scrollTop = screen.scrollHeight;
+    }
+
+    function termClear() {
+      const s = document.getElementById('terminal-screen');
+      if (s) s.innerHTML = TERMINAL_EMPTY_HTML;
+    }
+
+    async function termRun() {
+      const code = cmGetValue().trim();
+      if (!code) {
+        switchTab('terminal');
+        termClear();
+        termAddLine('⚠ No code in editor. Write some code first!', 'sys');
         return;
       }
 
-      termSessionId = data.session_id;
-      termRenderChunk(data.output, 'out');
-      termAddLine('', 'out');
-      termAddLine('ℹ Program is waiting for input. Type below and press Enter.', 'sys');
-      termSetStatus(true, 'waiting');
-      return;
+      if (termSessionId) await termKill(true);
+      switchTab('terminal');
+      termClear();
+      termAddLine(`▶ Running ${currentLang.toUpperCase()} code…`, 'sys');
+      termSetStatus(true, 'running');
+
+      try {
+        if (codeNeedsInteractiveInput(code)) {
+          const r = await fetch(`${API}/api/lab/terminal/start`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, language: currentLang }),
+          });
+          const data = await r.json();
+
+          if (!data.success) {
+            termAddLine(`✗ ${data.error || 'Unable to start terminal session.'}`, 'err');
+            termSetStatus(false);
+            return;
+          }
+
+          termSessionId = data.session_id;
+          termRenderChunk(data.output, 'out');
+          termAddLine('', 'out');
+          termAddLine('ℹ Program is waiting for input. Type below and press Enter.', 'sys');
+          termSetStatus(true, 'waiting');
+          return;
+        }
+
+        const r = await fetch(`${API}/api/lab/run`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, language: currentLang }),
+        });
+        const data = await r.json();
+        stats.runs++;
+        document.getElementById('stat-runs').textContent = stats.runs;
+        termRenderExecution({
+          success: data.success,
+          output: data.output,
+          error: data.error,
+          time: data.time,
+          language: currentLang
+        });
+      } catch (e) {
+        termAddLine(`✗ Connection error: ${e.message}`, 'err');
+        termSetStatus(false);
+        setStatus(false);
+      }
     }
 
-    const r = await fetch(`${API}/api/lab/run`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, language: currentLang }),
-    });
-    const data = await r.json();
-    stats.runs++;
-    document.getElementById('stat-runs').textContent = stats.runs;
-    termRenderExecution({
-      success: data.success,
-      output: data.output,
-      error: data.error,
-      time: data.time,
-      language: currentLang
-    });
-  } catch (e) {
-    termAddLine(`✗ Connection error: ${e.message}`, 'err');
-    termSetStatus(false);
-    setStatus(false);
-  }
-}
+    async function termSend() {
+      if (!termRunning || !termSessionId) return;
+      const inp = document.getElementById('terminal-user-input');
+      const line = inp ? inp.value : '';
+      if (inp) inp.value = '';
 
-async function termSend() {
-  if (!termRunning || !termSessionId) return;
-  const inp = document.getElementById('terminal-user-input');
-  const line = inp ? inp.value : '';
-  if (inp) inp.value = '';
+      termAddLine('› ' + line, 'in');
+      termSetStatus(true, 'running');
 
-  termAddLine('› ' + line, 'in');
-  termSetStatus(true, 'running');
+      try {
+        const r = await fetch(`${API}/api/lab/terminal/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: termSessionId, input: line }),
+        });
+        const data = await r.json();
 
-  try {
-    const r = await fetch(`${API}/api/lab/terminal/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: termSessionId, input: line }),
-    });
-    const data = await r.json();
+        if (!data.success) {
+          termAddLine(`✗ ${data.error || 'Input send failed.'}`, 'err');
+          termSetStatus(false);
+          termSessionId = null;
+          return;
+        }
 
-    if (!data.success) {
-      termAddLine(`✗ ${data.error || 'Input send failed.'}`, 'err');
-      termSetStatus(false);
+        termRenderChunk(data.output, 'out');
+        if (data.done) {
+          stats.runs++;
+          document.getElementById('stat-runs').textContent = stats.runs;
+          termAddLine('', 'sys');
+          termAddLine(`✓ Process exited (${data.exit_code === 0 ? 'OK' : 'error'})`, data.exit_code === 0 ? 'sys' : 'err');
+          termSetStatus(false);
+          termSessionId = null;
+        } else {
+          termSetStatus(true, 'waiting');
+        }
+      } catch (e) {
+        termAddLine(`✗ Send error: ${e.message}`, 'err');
+        termSetStatus(false);
+        termSessionId = null;
+      }
+    }
+
+    function termKey(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        termSend();
+      }
+    }
+
+    async function termKill(silent = false) {
+      const sid = termSessionId;
       termSessionId = null;
-      return;
-    }
-
-    termRenderChunk(data.output, 'out');
-    if (data.done) {
-      stats.runs++;
-      document.getElementById('stat-runs').textContent = stats.runs;
-      termAddLine('', 'sys');
-      termAddLine(`✓ Process exited (${data.exit_code === 0 ? 'OK' : 'error'})`, data.exit_code === 0 ? 'sys' : 'err');
       termSetStatus(false);
-      termSessionId = null;
-    } else {
-      termSetStatus(true, 'waiting');
+      if (!sid) return;
+      try {
+        await fetch(`${API}/api/lab/terminal/kill`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sid }),
+        });
+      } catch { }
+      if (!silent) {
+        termAddLine('■ Session terminated', 'sys');
+      }
     }
-  } catch (e) {
-    termAddLine(`✗ Send error: ${e.message}`, 'err');
-    termSetStatus(false);
-    termSessionId = null;
-  }
-}
 
-function termKey(e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    termSend();
-  }
-}
-
-async function termKill(silent = false) {
-  const sid = termSessionId;
-  termSessionId = null;
-  termSetStatus(false);
-  if (!sid) return;
-  try {
-    await fetch(`${API}/api/lab/terminal/kill`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: sid }),
-    });
-  } catch {}
-  if (!silent) {
-    termAddLine('■ Session terminated', 'sys');
-  }
-}
-
-</script>
+  </script>
 </body>
+
 </html>
