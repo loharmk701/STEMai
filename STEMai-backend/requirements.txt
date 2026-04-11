@@ -18,6 +18,8 @@ python-dotenv==1.0.1
 # ── Data validation ───────────────────────────────────────────────────────────
 pydantic==2.10.3
 pydantic-settings==2.7.0
+sqlalchemy>=2.0.0
+
 
 # ── Auth ─────────────────────────────────────────────────────────────────────
 itsdangerous==2.2.0               # URLSafeTimedSerializer for JWT-style tokens

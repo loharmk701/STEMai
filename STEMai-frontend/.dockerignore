@@ -1,0 +1,19 @@
+# Ignore these when building the Docker image (keeps it small & fast)
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+.env
+.env.*
+node_modules/
+dist/
+.vercel/
+.claude/
+.continue/
+.agents/
+*.log
+*.db
+*.sqlite3

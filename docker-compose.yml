@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./STEMai-backend
+      dockerfile: Dockerfile
+    container_name: stembotix-backend
+    ports:
+      - "8123:8123"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_TOKEN_MAX_AGE_SECONDS=${AUTH_TOKEN_MAX_AGE_SECONDS:-604800}
+      - APP_DB=/data/teacher.db
+      - APP_ENV=production
+    volumes:
+      - backend_data:/data
+    restart: always
+
+  frontend:
+    build:
+      context: ./STEMai-frontend
+      dockerfile: Dockerfile
+    container_name: stembotix-frontend
+    ports:
+      - "5000:5000"
+    environment:
+      # This points the frontend proxy to the backend container over Docker's internal network
+      - BACKEND_URL=http://backend:8123
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  backend_data:
