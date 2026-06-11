@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="{{ url_for('static', filename='auth_interceptor.js') }}"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -119,10 +120,10 @@
     }
 
     .auth-card {
-      background:var(--bg-secondary);
-      border-radius:var(--radius-lg);
-      border:1.5px solid var(--border-light);
-      box-shadow:0 20px 60px rgba(46,59,109,.25);
+      background:#ffffff;
+      border-radius:28px;
+      border:none;
+      box-shadow:0 20px 50px rgba(0, 0, 0, 0.08);
       max-width:420px;width:100%;
       padding:40px 32px;
       animation:slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1);
@@ -139,10 +140,9 @@
       height:48px;width:auto;margin-bottom:12px;
     }
     .auth-title {
-      font-family:var(--font-display);font-size:1.8rem;font-weight:900;
-      background:linear-gradient(135deg,var(--stem-orange),var(--stem-navy));
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      background-clip:text;margin-bottom:4px;
+      font-family:var(--font-display);font-size:2rem;font-weight:900;
+      color:#c2410c; /* solid warm coral/orange-red */
+      margin-bottom:4px;
     }
     .auth-subtitle {
       font-size:.85rem;color:var(--text-secondary);font-weight:500;
@@ -157,8 +157,9 @@
     }
 
     .form-title {
-      font-family:var(--font-display);font-size:1.2rem;font-weight:700;
+      font-family:var(--font-display);font-size:1.4rem;font-weight:800;
       color:var(--text-primary);margin-bottom:6px;
+      text-align:left;
     }
 
     .form-group {
@@ -166,19 +167,21 @@
     }
     .form-label {
       font-size:.85rem;font-weight:600;color:var(--text-primary);
+      text-align:left;
     }
     .form-input {
-      padding:12px 14px;
-      background:var(--bg-primary);
-      border:1.5px solid var(--border-light);
-      border-radius:var(--radius-md);
+      padding:14px 18px;
+      background:#eef2ff; /* soft blue/indigo tinted inputs */
+      border:none;
+      border-radius:16px;
       font-size:.95rem;font-family:var(--font-body);
       color:var(--text-primary);
       transition:all var(--tf);
     }
     .form-input:focus {
-      outline:none;border-color:var(--stem-orange);
-      background:rgba(255,107,53,.05);box-shadow:0 0 0 3px rgba(255,107,53,.1);
+      outline:none;
+      background:#e5ebff;
+      box-shadow:0 0 0 3px rgba(46,59,109,.1);
     }
     .form-input::placeholder {
       color:var(--text-muted);
@@ -193,39 +196,44 @@
     }
     .role-label {
       display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:8px;padding:14px;
-      background:var(--bg-primary);border:2px solid var(--border-light);
-      border-radius:var(--radius-md);cursor:pointer;
+      gap:8px;padding:16px 14px;
+      background:#eef2ff;border:2px solid transparent;
+      border-radius:16px;cursor:pointer;
       transition:all var(--tf);text-align:center;
     }
     .role-label:hover {
-      border-color:var(--stem-orange);background:rgba(255,107,53,.02);
+      background:#e5ebff;
     }
     .role-selector input[type="radio"]:checked + .role-label {
-      background:rgba(255,107,53,.1);border-color:var(--stem-orange);
+      background:#fff5f2;border-color:#ff6b35;
       box-shadow:0 0 0 3px rgba(255,107,53,.1);
     }
     .role-label i {
-      font-size:1.4rem;color:var(--stem-orange);
+      font-size:1.6rem;color:#5b6b8a; /* muted icon color */
+      transition:color var(--tf);
+    }
+    .role-selector input[type="radio"]:checked + .role-label i {
+      color:#ff6b35; /* orange icon when checked */
     }
     .role-label span {
-      font-weight:600;color:var(--text-primary);font-size:.9rem;
+      font-weight:700;color:var(--text-primary);font-size:.9rem;
     }
     .role-label small {
       font-size:.72rem;color:var(--text-secondary);font-weight:400;
+      line-height:1.2;
     }
 
     .form-button {
-      padding:12px;
-      background:linear-gradient(135deg,var(--stem-orange),var(--stem-orange-light));
-      border:none;border-radius:var(--radius-md);
+      padding:14px;
+      background:#ff6b35; /* solid orange button */
+      border:none;border-radius:16px;
       color:#fff;font-size:.95rem;font-weight:700;
       display:flex;align-items:center;justify-content:center;gap:8px;
       cursor:pointer;transition:all var(--tf);
-      box-shadow:var(--shadow-glow-orange);
+      box-shadow:0 8px 20px rgba(255,107,53,.2);
     }
     .form-button:hover {
-      transform:translateY(-2px);box-shadow:0 6px 32px rgba(255,107,53,.35);
+      transform:translateY(-2px);box-shadow:0 10px 25px rgba(255,107,53,.3);
     }
     .form-button:active {
       transform:translateY(0);
@@ -240,11 +248,11 @@
       color:var(--stem-orange);
     }
     .form-link-btn strong {
-      color:var(--stem-orange);font-weight:700;
+      color:#ff6b35;font-weight:700;
     }
 
     .auth-divider {
-      display:flex;align-items:center;gap:12px;margin:12px 0;
+      display:flex;align-items:center;gap:12px;margin:16px 0;
       color:var(--text-muted);font-size:.85rem;
     }
     .auth-divider::before,
@@ -260,9 +268,85 @@
       border:1.5px solid rgba(239,68,68,.3);border-radius:var(--radius-md);
       color:#dc2626;font-size:.85rem;font-weight:600;
       display:none;
+      text-align:left;
     }
     .auth-error.show {
       display:block;
+    }
+
+    /* ════════════════════════════════════
+       API KEY MODAL (DARK VIEW)
+     ════════════════════════════════════ */
+    .api-key-modal {
+      position:fixed;inset:0;z-index:11000;
+      background:#000000;
+      display:flex;align-items:center;justify-content:center;
+      opacity:1;transition:opacity var(--tn);
+      color:#ffffff;
+      font-family:var(--font-body);
+    }
+    .api-key-modal.hidden {
+      opacity:0;pointer-events:none;display:none;
+    }
+    .api-key-container {
+      max-width:450px;width:100%;
+      padding:40px 24px;
+      display:flex;flex-direction:column;
+      align-items:center;
+      text-align:center;
+    }
+    .api-key-title {
+      font-family:var(--font-display);font-size:2.2rem;font-weight:800;
+      margin-bottom:12px;color:#ffffff;
+    }
+    .api-key-desc {
+      font-size:.95rem;line-height:1.6;color:#a0aec0;
+      margin-bottom:32px;font-weight:500;
+    }
+    .api-key-steps {
+      text-align:left;align-self:flex-start;
+      margin-bottom:32px;color:#e2e8f0;
+      display:flex;flex-direction:column;
+      gap:14px;font-size:1rem;
+      width:100%;padding-left:10px;
+    }
+    .api-key-steps a {
+      color:#ff6b35;text-decoration:none;font-weight:700;
+    }
+    .api-key-steps a:hover {
+      text-decoration:underline;
+    }
+    .api-key-input {
+      width:100%;padding:16px 20px;
+      background:#161920;
+      border:1.5px solid #252932;
+      border-radius:12px;color:#ffffff;
+      font-size:1rem;margin-bottom:24px;
+      outline:none;transition:all var(--tf);
+    }
+    .api-key-input:focus {
+      border-color:#ff6b35;background:#1c1f27;
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.25);
+    }
+    .api-key-input::placeholder {
+      color:#4a5568;
+    }
+    .api-key-btn {
+      width:100%;padding:16px;
+      background:#ff6b35;border:none;
+      border-radius:12px;color:#ffffff;
+      font-size:1.1rem;font-weight:800;
+      cursor:pointer;transition:all var(--tf);
+      margin-bottom:16px;
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
+    }
+    .api-key-btn:hover {
+      background:#ff8554;transform:translateY(-2px);
+      box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+    }
+    .api-key-footer {
+      font-size:.82rem;color:#718096;
+      font-weight:500;
     }
 
     /* ════════════════════════════════════
@@ -1256,6 +1340,38 @@
       transform: translateY(0);
     }
 
+    .sidebar-config-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border-medium);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: .8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--tf);
+      margin-bottom: 8px;
+    }
+    .sidebar-config-btn i {
+      font-size: .82rem;
+      color: var(--stem-orange);
+    }
+    .sidebar-config-btn:hover {
+      background: var(--border-light);
+      border-color: var(--stem-orange);
+      box-shadow: 0 3px 14px rgba(255,107,53,.15);
+      transform: translateY(-1px);
+    }
+    .sidebar-config-btn:active {
+      transform: translateY(0);
+    }
+
     @media (prefers-color-scheme:dark) {
       .user-profile-card {
         background: linear-gradient(135deg, rgba(46,59,109,.15), rgba(255,107,53,.06));
@@ -1393,6 +1509,11 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label for="registerApiKey" class="form-label">OpenRouter API Key (Optional)</label>
+            <input type="password" id="registerApiKey" class="form-input" placeholder="sk-or-v1-...">
+          </div>
+
           <button class="form-button" id="registerBtn">
             <i class="fa-solid fa-user-plus"></i>
             <span>Create Account</span>
@@ -1407,6 +1528,28 @@
           <div class="auth-error" id="registerError"></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- API KEY MODAL (DARK OVERLAY) -->
+  <div class="api-key-modal hidden" id="apiKeyModal">
+    <div class="api-key-container">
+      <h1 class="api-key-title">One Last Step</h1>
+      <p class="api-key-desc">STEM Copilot uses your own OpenRouter API key to power the tutor. It's free — takes 30 seconds to set up.</p>
+      
+      <div class="api-key-steps">
+        <div>1. Go to <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">openrouter.ai/keys</a></div>
+        <div>2. Create a new key (free)</div>
+        <div>3. Paste it below</div>
+      </div>
+
+      <input type="password" id="apiKeyInput" class="api-key-input" placeholder="Paste your OpenRouter API key here" required>
+      
+      <div id="apiKeyError" class="auth-error" style="width: 100%; margin-bottom: 20px;"></div>
+
+      <button id="apiKeySubmitBtn" class="api-key-btn">Start Learning</button>
+      
+      <div class="api-key-footer">Your key is stored securely and never shared.</div>
     </div>
   </div>
 
@@ -1493,6 +1636,10 @@
             </span>
           </div>
         </div>
+        <button class="sidebar-config-btn" id="configureApiKeyBtn" type="button">
+          <i class="fa-solid fa-key"></i>
+          <span>Configure API Key</span>
+        </button>
         <button class="sidebar-logout-btn" id="logoutBtn" type="button">
           <i class="fa-solid fa-right-from-bracket"></i>
           <span>Logout</span>

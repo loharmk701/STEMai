@@ -89,9 +89,9 @@ LAYOUT_GRID = {
 #  OPENROUTER
 # =============================================================
 
-def _or_headers() -> dict:
+def _or_headers(api_key: str) -> dict:
     return {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
         "HTTP-Referer": SITE_URL,
         "X-Title": "STEMbotix Simulator",
@@ -104,14 +104,16 @@ async def _chat_json(
     temperature: float = 0.1,
 ) -> tuple[Optional[dict], Optional[str]]:
     """Call OpenRouter and return (parsed_dict, error)."""
-    if not OPENROUTER_API_KEY:
+    from app.core.context import openrouter_key_var
+    api_key = openrouter_key_var.get() or os.getenv("OPENROUTER_API_KEY", "").strip()
+    if not api_key:
         return None, "OPENROUTER_API_KEY not configured"
 
     try:
         async with httpx.AsyncClient(timeout=90) as client:
             r = await client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
-                headers=_or_headers(),
+                headers=_or_headers(api_key),
                 json={
                     "model": SIM_MODEL,
                     "messages": messages,
@@ -318,13 +320,15 @@ async def sim_ai(request: Request):
             },
             {"role": "user", "content": text},
         ]
-        if not OPENROUTER_API_KEY:
+        from app.core.context import openrouter_key_var
+        api_key = openrouter_key_var.get() or os.getenv("OPENROUTER_API_KEY", "").strip()
+        if not api_key:
             return JSONResponse({"error": "API key not configured"}, status_code=500)
         try:
             async with httpx.AsyncClient(timeout=60) as client:
                 r = await client.post(
                     "https://openrouter.ai/api/v1/chat/completions",
-                    headers=_or_headers(),
+                    headers=_or_headers(api_key),
                     json={"model": SIM_MODEL, "messages": messages,
                           "temperature": 0.3, "max_tokens": 800},
                 )

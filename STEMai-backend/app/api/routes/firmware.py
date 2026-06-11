@@ -57,9 +57,9 @@ _DEVICE_REGISTRY: dict[str, dict] = {}
 #  OPENROUTER
 # =============================================================
 
-def _or_headers() -> dict:
+def _or_headers(api_key: str) -> dict:
     return {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
         "HTTP-Referer": SITE_URL,
         "X-Title": "STEMbotix Firmware Studio",
@@ -73,13 +73,15 @@ async def _chat(
     model: Optional[str] = None,
 ) -> tuple[Optional[str], Optional[str]]:
     """Returns (content, error). error is None on success."""
-    if not OPENROUTER_API_KEY:
+    from app.core.context import openrouter_key_var
+    api_key = openrouter_key_var.get() or os.getenv("OPENROUTER_API_KEY", "").strip()
+    if not api_key:
         return None, "OPENROUTER_API_KEY not configured"
     try:
         async with httpx.AsyncClient(timeout=90) as client:
             r = await client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
-                headers=_or_headers(),
+                headers=_or_headers(api_key),
                 json={
                     "model": model or FIRMWARE_MODEL,
                     "messages": messages,
