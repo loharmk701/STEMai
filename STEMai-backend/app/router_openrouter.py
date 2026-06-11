@@ -7,12 +7,15 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 class OpenRouterClient:
     def __init__(self):
         self.api_key = os.getenv("OPENROUTER_API_KEY", "")
-        if not self.api_key:
-            raise RuntimeError("Missing OPENROUTER_API_KEY in environment.")
 
     async def chat(self, model: str, messages: list, temperature: float = 0.4, max_tokens: int = 900):
+        from app.core.context import openrouter_key_var
+        api_key = openrouter_key_var.get() or self.api_key
+        if not api_key:
+            raise RuntimeError("Missing OPENROUTER_API_KEY in environment or request header.")
+
         headers = {
-            "Authorization": f"Bearer {self.api_key}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
             "HTTP-Referer": os.getenv("OPENROUTER_REFERER", "http://localhost:5000"),
             "X-Title": os.getenv("OPENROUTER_TITLE", "STEM AI Teacher"),

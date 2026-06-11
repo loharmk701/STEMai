@@ -21,8 +21,10 @@ async def call_ai(prompt, code_only: bool = True):
     """Call the AI and (when code_only=True) return ONLY the source code,
     stripping any prose, markdown fences, or explanations the model adds."""
     import re
+    from app.core.context import openrouter_key_var
 
-    if not OPENROUTER_API_KEY:
+    api_key = openrouter_key_var.get() or os.getenv("OPENROUTER_API_KEY", "")
+    if not api_key:
         return f"# AI not configured\n# {prompt}"
 
     # System instruction forces the model to return raw code with no prose
@@ -37,7 +39,7 @@ async def call_ai(prompt, code_only: bool = True):
         async with httpx.AsyncClient(timeout=30) as client:
             r = await client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
-                headers={"Authorization": f"Bearer {OPENROUTER_API_KEY}"},
+                headers={"Authorization": f"Bearer {api_key}"},
                 json={
                     "model": "openai/gpt-4o-mini",
                     "messages": [
