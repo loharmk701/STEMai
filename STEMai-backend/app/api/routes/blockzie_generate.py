@@ -925,8 +925,10 @@ def _validate(xml_str: str, strict: bool = False) -> Tuple[bool, str, int]:
 #  LLM CALL LAYER
 # ══════════════════════════════════════════════════════════════════════════════
 async def _call_llm(system: str, user: str, model: str, max_tokens: int = 2048) -> str:
+    from app.core.context import openrouter_key_var
+    api_key = openrouter_key_var.get() or OPENROUTER_API_KEY
     headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type":  "application/json",
         "HTTP-Referer":  SITE_URL,
         "X-Title":       "STEMbotix",
@@ -973,8 +975,10 @@ async def _call_with_fallback(
     Try models in order. model_list is pre-computed by _get_model_list(score).
     Smart models (Claude/GPT-4o) appear first for hard prompts automatically.
     """
-    if not OPENROUTER_API_KEY:
-        raise HTTPException(502, "OPENROUTER_API_KEY not configured in .env")
+    from app.core.context import openrouter_key_var
+    api_key = openrouter_key_var.get() or OPENROUTER_API_KEY
+    if not api_key:
+        raise HTTPException(502, "OPENROUTER_API_KEY not configured in .env or request header")
 
     if model_list is None:
         model_list = _get_model_list(0)   # default to free tier

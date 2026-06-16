@@ -95,8 +95,26 @@ app = FastAPI(
 )
 
 # ---------------------------------------------------
-# CORS
+# OpenRouter Key Interceptor & CORS Middleware
 # ---------------------------------------------------
+from starlette.middleware.base import BaseHTTPMiddleware
+from app.core.context import openrouter_key_var
+
+class OpenRouterKeyMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        key = request.headers.get("X-OpenRouter-Key")
+        token = None
+        if key:
+            token = openrouter_key_var.set(key)
+        try:
+            response = await call_next(request)
+            return response
+        finally:
+            if token:
+                openrouter_key_var.reset(token)
+
+app.add_middleware(OpenRouterKeyMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOW_ORIGINS,

@@ -142,7 +142,8 @@ async def blockzie_generate(req: GenerateBlockzieRequest, user=Depends(get_curre
     
     # Call the blockzie_generate endpoint
     try:
-        openrouter_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+        from app.core.context import openrouter_key_var
+        openrouter_key = openrouter_key_var.get() or os.getenv("OPENROUTER_API_KEY", "").strip()
         site_url = os.getenv("SITE_URL", "https://stembotix-ai.vercel.app").strip()
         model = os.getenv("DEFAULT_MODEL", "openai/gpt-4o-mini").strip()
         
