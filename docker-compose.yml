@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     container_name: stembotix-frontend
     ports:
-      - "5000:5000"
+      - "3000:3000"
     environment:
       # This points the frontend proxy to the backend container over Docker's internal network
       - BACKEND_URL=http://backend:8123

@@ -20,3 +20,5 @@ node_modules/
 .DS_Store
 gcp_deployment_guide.md
 gcp_deployment_guide.md.resolved
+CLAUDE.md
+

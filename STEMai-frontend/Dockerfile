@@ -22,10 +22,10 @@ RUN pip install --upgrade pip && \
 # Copy the entire frontend source code
 COPY . .
 
-# The frontend listens on port 5000
-EXPOSE 5000
+# The frontend listens on port 3000
+EXPOSE 3000
 
 # Run with Gunicorn (production-grade WSGI server)
 # - 4 workers for concurrency
 # - 120s timeout to match the proxy timeout in app.py
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:3000", "--workers", "4", "--timeout", "120", "app:app"]
